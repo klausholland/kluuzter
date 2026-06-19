@@ -45,3 +45,55 @@ export function mapPlaylistTrackItems(items: unknown[]): SpotifyTrack[] {
       coverUrl: t.album?.images?.[0]?.url ?? null,
     }));
 }
+
+const API = "https://api.spotify.com/v1";
+
+async function getJson(
+  url: string,
+  token: string,
+  fetchImpl: typeof fetch,
+): Promise<Record<string, unknown>> {
+  const res = await fetchImpl(url, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    throw new Error(`Spotify API ${res.status} for ${url}`);
+  }
+  return (await res.json()) as Record<string, unknown>;
+}
+
+export async function getMyPlaylists(
+  token: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<SpotifyPlaylistSummary[]> {
+  const data = await getJson(`${API}/me/playlists?limit=50`, token, fetchImpl);
+  return mapPlaylistSummaries((data.items as unknown[]) ?? []);
+}
+
+export async function searchPlaylists(
+  token: string,
+  query: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<SpotifyPlaylistSummary[]> {
+  const url = `${API}/search?type=playlist&limit=20&q=${encodeURIComponent(query)}`;
+  const data = await getJson(url, token, fetchImpl);
+  const playlists = (data.playlists as { items?: unknown[] }) ?? {};
+  return mapPlaylistSummaries(playlists.items ?? []);
+}
+
+export async function getPlaylistTracks(
+  token: string,
+  playlistId: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<SpotifyTrack[]> {
+  const fields =
+    "fields=items(track(id,uri,name,is_local,artists(name),album(release_date,images))),next";
+  let url: string | null = `${API}/playlists/${playlistId}/tracks?limit=100&${fields}`;
+  const out: SpotifyTrack[] = [];
+  while (url) {
+    const data: Record<string, unknown> = await getJson(url, token, fetchImpl);
+    out.push(...mapPlaylistTrackItems((data.items as unknown[]) ?? []));
+    url = (data.next as string | null) ?? null;
+  }
+  return out;
+}
