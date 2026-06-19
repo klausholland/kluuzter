@@ -82,7 +82,8 @@ export function GameScreen({
 
       <div className="flex-1">
         <p className="px-4 pt-3 text-sm text-neutral-400">
-          {active.name} ist am Zug — wo gehört der Song hin?
+          {active.name} ist am Zug — Mystery-Karte auf einen Slot ziehen oder einen
+          Slot antippen.
         </p>
         <Timeline
           cards={active.timeline}
@@ -95,7 +96,18 @@ export function GameScreen({
 
       {phase === "playing" && (
         <div className="flex flex-col items-center gap-3 border-t border-neutral-800 p-4">
-          {card && <GameCard card={card} faceDown />}
+          {card && (
+            <GameCard
+              card={card}
+              faceDown
+              draggable
+              onDragStart={(e) => {
+                // Pflicht für Firefox, damit der Drag überhaupt startet.
+                e.dataTransfer.setData("text/plain", "mystery-card");
+                e.dataTransfer.effectAllowed = "move";
+              }}
+            />
+          )}
           <PlaybackControls
             playback={playback}
             onToggle={togglePlay}

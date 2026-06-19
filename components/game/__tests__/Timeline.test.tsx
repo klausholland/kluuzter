@@ -36,4 +36,24 @@ describe("Timeline", () => {
     );
     expect((screen.getByLabelText("Slot 1") as HTMLButtonElement).disabled).toBe(true);
   });
+
+  it("selects a slot when a card is dropped on it (drag & drop)", () => {
+    const onSelect = vi.fn();
+    render(
+      <Timeline cards={cards} availableSlots={[0, 1, 2]} selectedSlot={null} onSelectSlot={onSelect} interactive />,
+    );
+    const slot = screen.getByLabelText("Slot 1");
+    fireEvent.dragOver(slot);
+    fireEvent.drop(slot);
+    expect(onSelect).toHaveBeenCalledWith(1);
+  });
+
+  it("ignores a drop on a disabled slot", () => {
+    const onSelect = vi.fn();
+    render(
+      <Timeline cards={cards} availableSlots={[0, 2]} selectedSlot={null} onSelectSlot={onSelect} interactive />,
+    );
+    fireEvent.drop(screen.getByLabelText("Slot 1")); // Slot 1 ist disabled
+    expect(onSelect).not.toHaveBeenCalled();
+  });
 });
