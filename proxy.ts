@@ -5,7 +5,7 @@ import {
   verifySessionToken,
 } from "@/lib/app-auth/session";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const token = request.cookies.get(APP_SESSION_COOKIE)?.value;
   const ok = await verifySessionToken(token);
   if (!ok) {
@@ -19,6 +19,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   // Alles schützen außer: /login, Auth.js-Routen, Next-Interna, statische Assets
   matcher: [
-    "/((?!login|api/auth|_next/static|_next/image|favicon.ico).*)",
+    "/((?!login$|login/|api/auth$|api/auth/|_next/static|_next/image|favicon.ico).*)",
   ],
 };

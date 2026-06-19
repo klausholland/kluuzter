@@ -13,11 +13,7 @@ export async function fetchProfile(
       headers: { Authorization: `Bearer ${accessToken}` },
     });
     if (!res.ok) return null;
-    const data = (await res.json()) as {
-      id: string;
-      display_name: string | null;
-      product: string;
-    };
+    const data = (await res.json()) as SpotifyProfile;
     return {
       id: data.id,
       display_name: data.display_name,

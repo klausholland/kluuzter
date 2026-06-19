@@ -3,14 +3,16 @@ import { fetchProfile, isPremium } from "@/lib/spotify/profile";
 
 export default async function Home() {
   const session = await auth();
-  const profile = session?.accessToken
-    ? await fetchProfile(session.accessToken)
-    : null;
-  const premium = isPremium(profile);
+  const connected = !!session && session.error !== "RefreshAccessTokenError";
+  const profile =
+    connected && session?.accessToken
+      ? await fetchProfile(session.accessToken)
+      : null;
+  const premium = connected ? isPremium(profile) : false;
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-6">
       <h1 className="text-2xl font-bold">Hitster</h1>
-      {session ? (
+      {connected ? (
         <>
           <p className="text-sm">
             Angemeldet als {profile?.display_name ?? "?"} —{" "}

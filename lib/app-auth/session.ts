@@ -31,7 +31,8 @@ export async function verifySessionToken(
 export function isCorrectPassword(input: string): boolean {
   const expected = process.env.APP_PASSWORD;
   if (!expected || !input) return false;
-  // Längen-unabhängiger, einfacher Vergleich (Single-User, lokal unkritisch)
+  // Best-effort-Vergleich: leakt absichtlich die Länge (früher Return bei
+  // Längen-Mismatch). Für das Single-User-/lokale Bedrohungsmodell akzeptiert.
   if (input.length !== expected.length) return false;
   let mismatch = 0;
   for (let i = 0; i < input.length; i++) {
