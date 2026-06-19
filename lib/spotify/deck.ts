@@ -61,3 +61,14 @@ export async function buildDeck(
   }
   return shuffle(cards, rng);
 }
+
+export function dedupeTracks(tracks: SpotifyTrack[]): SpotifyTrack[] {
+  const seen = new Set<string>();
+  const out: SpotifyTrack[] = [];
+  for (const t of tracks) {
+    if (seen.has(t.id)) continue;
+    seen.add(t.id);
+    out.push(t);
+  }
+  return out;
+}
