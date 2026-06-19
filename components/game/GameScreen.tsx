@@ -95,7 +95,7 @@ export function GameScreen({
 
       {phase === "playing" && (
         <div className="flex flex-col items-center gap-3 border-t border-neutral-800 p-4">
-          {card && <GameCard card={card} hideYear />}
+          {card && <GameCard card={card} faceDown />}
           <PlaybackControls
             playback={playback}
             onToggle={togglePlay}

@@ -24,13 +24,15 @@ describe("GameCard", () => {
     expect(screen.getByText("Sultans of Swing")).toBeTruthy();
   });
 
-  it("hides the year when hideYear is set", () => {
-    render(<GameCard card={card} hideYear />);
+  it("hides artist, year AND title on a face-down (mystery) card", () => {
+    render(<GameCard card={card} faceDown />);
     expect(screen.queryByText("1978")).toBeNull();
+    expect(screen.queryByText("Dire Straits")).toBeNull();
+    expect(screen.queryByText("Sultans of Swing")).toBeNull();
     expect(screen.getByText("?")).toBeTruthy();
   });
 
-  it("marks a spotify-sourced year as approximate", () => {
+  it("marks a spotify-sourced year as approximate when revealed", () => {
     render(<GameCard card={{ ...card, yearSource: "spotify" }} />);
     expect(screen.getByText(/ungenau/)).toBeTruthy();
   });
