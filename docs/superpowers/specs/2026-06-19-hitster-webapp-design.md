@@ -90,11 +90,16 @@ Vor Spielstart konfigurierbar:
     gewinnt (Default-Ziel: 10).
   - **„Feste Rundenzahl"** — nach N Runden gewinnt, wer die meisten Karten hat.
 - Zielwert (X Karten bzw. N Runden)
-- Start-Token-Anzahl pro Spieler
+- Start-Token-Anzahl pro Spieler (Default: 2)
 - Playlist(s) als Kartenstapel
 
+**Definition „Runde":** Eine Runde ist abgeschlossen, wenn jeder Spieler einmal
+am Zug war.
+
 Deck = Tracks der gewählten Playlist(s), gemischt. Jeder Spieler erhält 1
-Startkarte offen (Jahr sichtbar) als Anker auf seiner Timeline.
+Startkarte offen (Jahr sichtbar) als Anker auf seiner Timeline. Diese Anker-Karte
+zählt **nicht** zum Kartenziel (im Modus „X Karten" zählen nur danach korrekt
+platzierte Karten).
 
 ### 5.2 Phasen pro Zug (aktiver Spieler A)
 
@@ -114,6 +119,9 @@ kennen. Korrekt, wenn das echte Jahr in diese Lücke passt. Erst danach wird das
 Jahr aufgedeckt.
 
 ### 5.4 Konter-Mechanik (Token)
+
+Im Solo-Modus (1 Spieler) entfällt die `countering`-Phase, da es keine
+Mitspieler gibt.
 
 - Nach A's Platzierung können reihum die anderen Spieler **1 Token** ausgeben, um
   zu kontern: Sie setzen dieselbe Karte in einen *anderen* freien Slot von A's
