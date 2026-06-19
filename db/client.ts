@@ -1,6 +1,17 @@
 import { drizzle } from "drizzle-orm/neon-http";
-import { neon } from "@neondatabase/serverless";
+import { neon, neonConfig } from "@neondatabase/serverless";
 import * as schema from "./schema";
+
+// Lokaler Neon-HTTP-Proxy (siehe docker-compose.yml): Zeigt DATABASE_URL auf
+// einen lokalen Host, wird der Serverless-Treiber auf http://<host>:4444/sql
+// gelenkt. Für echte Neon-Hosts (Produktion) bleibt es bei https://<host>/sql.
+const LOCAL_PROXY_HOSTS = new Set(["db.localtest.me", "localhost", "127.0.0.1"]);
+neonConfig.fetchEndpoint = (host) => {
+  const isLocal = LOCAL_PROXY_HOSTS.has(host);
+  const protocol = isLocal ? "http" : "https";
+  const port = isLocal ? 4444 : 443;
+  return `${protocol}://${host}:${port}/sql`;
+};
 
 type DbClient = ReturnType<typeof drizzle<typeof schema>>;
 

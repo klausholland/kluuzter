@@ -1,0 +1,45 @@
+# Lokale Datenbank für Hitster.
+#
+# Die App nutzt den Neon-Serverless-HTTP-Treiber (drizzle-orm/neon-http +
+# @neondatabase/serverless). Der spricht nicht das normale Postgres-Wire-
+# Protokoll, sondern HTTP gegen einen Neon-/sql-Endpoint. Deshalb läuft hier
+# zusätzlich ein lokaler Neon-HTTP-Proxy vor dem Postgres-Container:
+#
+#   App (neon-http) ──HTTP:4444──▶ neon-proxy ──TCP:5432──▶ postgres
+#   drizzle-kit     ──────────────TCP:5432────────────────▶ postgres
+#
+# Start:   docker compose up -d
+# Stop:    docker compose down            (Daten bleiben erhalten)
+# Reset:   docker compose down -v         (Volume + Daten löschen)
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: hitster-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: hitster
+    ports:
+      - "5432:5432" # für drizzle-kit (generate/migrate/push) und psql
+    volumes:
+      - hitster_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hitster"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  neon-proxy:
+    image: ghcr.io/timowilhelm/local-neon-http-proxy:main
+    container_name: hitster-neon-proxy
+    environment:
+      PG_CONNECTION_STRING: postgres://postgres:postgres@postgres:5432/hitster
+    ports:
+      - "4444:4444" # HTTP-/sql-Endpoint für den Neon-Serverless-Treiber
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  hitster_pgdata:

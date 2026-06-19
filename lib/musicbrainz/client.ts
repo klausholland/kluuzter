@@ -1,5 +1,6 @@
 import type { TrackQuery } from "./types";
 import { bestRecordingYear, type MbRecording } from "./match";
+import pkg from "@/package.json";
 
 type MbResponse = {
   recordings?: Array<{
@@ -9,9 +10,17 @@ type MbResponse = {
   }>;
 };
 
+const APP_NAME = "Kluuzter";
+
+/**
+ * MusicBrainz verlangt einen aussagekräftigen User-Agent im Format
+ * "Application name/<version> ( contact-url )", damit sie bei Problemen die
+ * Maintainer erreichen können (siehe MusicBrainz-API-Doku). Die Version kommt
+ * aus package.json, der Kontakt aus MUSICBRAINZ_CONTACT (E-Mail oder URL).
+ */
 function userAgent(): string {
-  const contact = process.env.MUSICBRAINZ_CONTACT ?? "unknown";
-  return `Hitster/0.1 ( ${contact} )`;
+  const contact = process.env.MUSICBRAINZ_CONTACT ?? "contact-not-configured";
+  return `${APP_NAME}/${pkg.version} ( ${contact} )`;
 }
 
 export async function lookupYear(

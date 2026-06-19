@@ -5,3 +5,6 @@ next-env.d.ts
 *.tsbuildinfo
 .env
 .env*.local
+
+# Lokale mkcert-Zertifikate (privater Schlüssel — niemals committen)
+*.pem

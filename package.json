@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "next dev -H 127.0.0.1",
+    "dev": "next dev -H 0.0.0.0 --experimental-https --experimental-https-key ./localhost+3-key.pem --experimental-https-cert ./localhost+3.pem",
+    "dev:http": "next dev -H 0.0.0.0",
     "build": "next build",
     "start": "next start",
     "test": "vitest run",
