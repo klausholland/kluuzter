@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { auth, signIn, signOut } from "@/auth";
 import { fetchProfile, isPremium } from "@/lib/spotify/profile";
 
@@ -24,6 +25,14 @@ export default async function Home() {
               </span>
             )}
           </p>
+          {premium && (
+            <Link
+              href="/play"
+              className="rounded-xl bg-green-600 px-6 py-3 text-lg font-semibold"
+            >
+              Spiel starten
+            </Link>
+          )}
           <form
             action={async () => {
               "use server";
