@@ -1,22 +1,33 @@
 import type { SpotifyPlaylistSummary, SpotifyTrack } from "./types";
 
+type RawCount = { total?: number };
+
 type RawPlaylist = {
   id: string;
   name: string;
   images?: Array<{ url: string }>;
-  tracks?: { total?: number };
+  // Spotify hat das frühere `tracks`-Feld auf `items` umgestellt; beide unterstützen.
+  items?: RawCount;
+  tracks?: RawCount;
   owner?: { display_name?: string };
 };
 
+type RawTrack = {
+  id: string | null;
+  uri: string;
+  name: string;
+  type?: string; // "track" | "episode"
+  is_local?: boolean;
+  artists?: Array<{ name: string }>;
+  album?: { release_date?: string; images?: Array<{ url: string }> };
+};
+
+// Neuer Endpoint /playlists/{id}/items liefert das Track-Objekt unter `item`
+// (früher `track`). Beide unterstützen.
 type RawTrackItem = {
-  track: {
-    id: string | null;
-    uri: string;
-    name: string;
-    is_local?: boolean;
-    artists?: Array<{ name: string }>;
-    album?: { release_date?: string; images?: Array<{ url: string }> };
-  } | null;
+  is_local?: boolean;
+  item?: RawTrack | null;
+  track?: RawTrack | null;
 };
 
 export function mapPlaylistSummaries(items: unknown[]): SpotifyPlaylistSummary[] {
@@ -26,17 +37,21 @@ export function mapPlaylistSummaries(items: unknown[]): SpotifyPlaylistSummary[]
       id: p.id,
       name: p.name,
       imageUrl: p.images?.[0]?.url ?? null,
-      trackCount: p.tracks?.total ?? 0,
+      trackCount: (p.items ?? p.tracks)?.total ?? 0,
       owner: p.owner?.display_name ?? "",
     }));
 }
 
 export function mapPlaylistTrackItems(items: unknown[]): SpotifyTrack[] {
   return (items as RawTrackItem[])
-    .map((i) => i.track)
-    .filter((t): t is NonNullable<RawTrackItem["track"]> => t != null)
-    .filter((t) => !t.is_local && typeof t.id === "string")
-    .map((t) => ({
+    .map((i) => ({ wrapper: i, t: i.item ?? i.track ?? null }))
+    .filter((x): x is { wrapper: RawTrackItem; t: RawTrack } => x.t != null)
+    .filter(({ wrapper, t }) => {
+      const isLocal = wrapper.is_local ?? t.is_local ?? false;
+      const isTrack = t.type === undefined || t.type === "track";
+      return !isLocal && isTrack && typeof t.id === "string";
+    })
+    .map(({ t }) => ({
       id: t.id as string,
       uri: t.uri,
       title: t.name,
@@ -86,9 +101,9 @@ export async function getPlaylistTracks(
   playlistId: string,
   fetchImpl: typeof fetch = fetch,
 ): Promise<SpotifyTrack[]> {
-  const fields =
-    "fields=items(track(id,uri,name,is_local,artists(name),album(release_date,images))),next";
-  let url: string | null = `${API}/playlists/${playlistId}/tracks?limit=100&${fields}`;
+  // Spotify hat /playlists/{id}/tracks durch /playlists/{id}/items ersetzt
+  // (der alte Endpoint liefert mittlerweile 403).
+  let url: string | null = `${API}/playlists/${playlistId}/items?limit=100`;
   const out: SpotifyTrack[] = [];
   while (url) {
     const data: Record<string, unknown> = await getJson(url, token, fetchImpl);

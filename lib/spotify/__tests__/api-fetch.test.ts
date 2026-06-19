@@ -38,26 +38,30 @@ describe("searchPlaylists", () => {
 });
 
 describe("getPlaylistTracks", () => {
-  it("follows pagination via the `next` field", async () => {
+  it("queries the /items endpoint and follows pagination via `next`", async () => {
     const page1 = {
       items: [
-        { track: { id: "t1", uri: "spotify:track:t1", name: "One", is_local: false, artists: [{ name: "A" }], album: { release_date: "1990", images: [] } } },
+        { is_local: false, item: { id: "t1", uri: "spotify:track:t1", name: "One", type: "track", artists: [{ name: "A" }], album: { release_date: "1990", images: [] } } },
       ],
-      next: "https://api.spotify.com/v1/playlists/pl/tracks?offset=100",
+      next: "https://api.spotify.com/v1/playlists/pl/items?offset=100",
     };
     const page2 = {
       items: [
-        { track: { id: "t2", uri: "spotify:track:t2", name: "Two", is_local: false, artists: [{ name: "B" }], album: { release_date: "1991", images: [] } } },
+        { is_local: false, item: { id: "t2", uri: "spotify:track:t2", name: "Two", type: "track", artists: [{ name: "B" }], album: { release_date: "1991", images: [] } } },
       ],
       next: null,
     };
+    const urls: string[] = [];
     const fetchImpl = vi
-      .fn()
-      .mockResolvedValueOnce(jsonResponse(page1))
-      .mockResolvedValueOnce(jsonResponse(page2)) as unknown as typeof fetch;
+      .fn((url: string) => {
+        urls.push(url);
+        return Promise.resolve(urls.length === 1 ? jsonResponse(page1) : jsonResponse(page2));
+      }) as unknown as typeof fetch;
 
     const out = await getPlaylistTracks("tok", "pl", fetchImpl);
     expect(out.map((t) => t.id)).toEqual(["t1", "t2"]);
+    expect(urls[0]).toContain("/playlists/pl/items");
+    expect(urls[0]).not.toContain("/tracks");
   });
 
   it("throws on a non-OK response", async () => {
