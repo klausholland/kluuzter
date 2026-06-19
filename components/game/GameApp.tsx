@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Card, GameInput } from "@/lib/engine/types";
 import { SetupScreen } from "@/components/setup/SetupScreen";
 import { DeckLoading } from "./DeckLoading";
+import { GameScreen } from "./GameScreen";
 import { buildGameInput, type SetupConfig } from "./game-setup";
 
 type Scene =
@@ -34,17 +35,10 @@ export function GameApp() {
     );
   }
 
-  // Platzhalter — wird in Task 6 durch <GameScreen> ersetzt.
   return (
-    <main className="p-6">
-      <p>Deck bereit: {scene.input.deck.length} Karten.</p>
-      <button
-        type="button"
-        onClick={() => setScene({ name: "setup" })}
-        className="mt-4 rounded-lg bg-neutral-700 px-4 py-2"
-      >
-        Neues Spiel
-      </button>
-    </main>
+    <GameScreen
+      input={scene.input}
+      onRestart={() => setScene({ name: "setup" })}
+    />
   );
 }
