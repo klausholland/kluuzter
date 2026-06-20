@@ -70,12 +70,16 @@ describe("freeSlots", () => {
 });
 
 describe("scoredCardCount", () => {
-  it("excludes the anchor card", () => {
+  it("includes the anchor card", () => {
     const p: Player = { id: "p", name: "P", tokens: 2, timeline: tl };
-    expect(scoredCardCount(p)).toBe(2); // 3 Karten - 1 Anker
+    expect(scoredCardCount(p)).toBe(3); // 3 Karten inkl. Anker
   });
-  it("is 0 for a player with only the anchor", () => {
+  it("is 1 for a player with only the anchor", () => {
     const p: Player = { id: "p", name: "P", tokens: 2, timeline: [card("a", 1970)] };
+    expect(scoredCardCount(p)).toBe(1);
+  });
+  it("is 0 for an empty timeline", () => {
+    const p: Player = { id: "p", name: "P", tokens: 2, timeline: [] };
     expect(scoredCardCount(p)).toBe(0);
   });
 });

@@ -30,5 +30,5 @@ export function freeSlots(timelineLength: number, taken: number[]): number[] {
 }
 
 export function scoredCardCount(player: Player): number {
-  return Math.max(0, player.timeline.length - 1);
+  return player.timeline.length;
 }

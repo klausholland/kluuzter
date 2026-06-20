@@ -42,11 +42,12 @@ function ctx(partial: Partial<GameContext>): GameContext {
 }
 
 describe("isGameOver — targetCards", () => {
-  it("is true when a player reached the card target", () => {
+  it("is true when a player reached the card target (anchor counts)", () => {
     const c = ctx({
       mode: "targetCards",
       targetValue: 3,
-      players: [player("A", 3, 1), player("B", 1, 2)],
+      // A: 2 platzierte + 1 Anker = 3 = Ziel
+      players: [player("A", 2, 1), player("B", 1, 2)],
       turnOrder: ["A", "B"],
     });
     expect(isGameOver(c)).toBe(true);
@@ -55,7 +56,8 @@ describe("isGameOver — targetCards", () => {
     const c = ctx({
       mode: "targetCards",
       targetValue: 3,
-      players: [player("A", 2, 1), player("B", 1, 2)],
+      // beide: 1 platzierte + 1 Anker = 2 < 3
+      players: [player("A", 1, 1), player("B", 1, 2)],
       turnOrder: ["A", "B"],
     });
     expect(isGameOver(c)).toBe(false);
