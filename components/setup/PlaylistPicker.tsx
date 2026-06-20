@@ -166,7 +166,7 @@ export function PlaylistPicker({
         {playlists.map((p) => {
           const selected = selectedIds.includes(p.id);
           return (
-            <Box key={p.id} sx={{ mb: 0.5 }}>
+            <Box component="li" key={p.id} sx={{ mb: 0.5, listStyle: "none" }}>
               <ListItemButton
                 onClick={() => toggle(p)}
                 selected={selected}
