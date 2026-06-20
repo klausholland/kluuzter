@@ -1,4 +1,4 @@
-import { inArray } from "drizzle-orm";
+import { inArray, sql } from "drizzle-orm";
 import { db } from "@/db/client";
 import { yearCache, type YearCacheRow } from "@/db/schema";
 import type { ResolvedYear } from "./types";
@@ -32,5 +32,15 @@ export async function putCached(
         source: r.source,
       })),
     )
-    .onConflictDoNothing();
+    // Überschreiben, damit „Neu indizieren" (force) bestehende Jahre aktualisiert.
+    .onConflictDoUpdate({
+      target: yearCache.spotifyTrackId,
+      set: {
+        title: sql`excluded.title`,
+        artist: sql`excluded.artist`,
+        resolvedYear: sql`excluded.resolved_year`,
+        source: sql`excluded.source`,
+        fetchedAt: sql`now()`,
+      },
+    });
 }

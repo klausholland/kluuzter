@@ -58,6 +58,12 @@ describe("computeStatus", () => {
     expect(status.indexed).toBe(2);
     expect(status.missing).toEqual([]);
   });
+
+  it("exposes ALL queries (for force re-index), even when fully indexed", () => {
+    const tracks = [track("a"), track("b")];
+    const status = computeStatus(tracks, [cached("a"), cached("b")]);
+    expect(status.all.map((q) => q.spotifyTrackId)).toEqual(["a", "b"]);
+  });
 });
 
 describe("buildDeckFromCache", () => {

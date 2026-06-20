@@ -7,6 +7,7 @@ export type PlaylistStatus = {
   total: number;
   indexed: number;
   missing: TrackQuery[];
+  all: TrackQuery[]; // alle indexierbaren Tracks (für „Neu indizieren"/force)
 };
 
 export function chunk<T>(items: T[], size: number): T[][] {
@@ -28,6 +29,7 @@ export function computeStatus(
     total: queries.length,
     indexed: queries.length - missing.length,
     missing,
+    all: queries,
   };
 }
 

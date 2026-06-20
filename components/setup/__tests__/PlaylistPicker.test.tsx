@@ -38,8 +38,30 @@ describe("PlaylistPicker indexing", () => {
   it("runs indexPlaylist when the index button is clicked", async () => {
     const { indexPlaylist } = await import("@/lib/spotify/playlist-index");
     render(<PlaylistPicker selectedIds={["pl1"]} onChange={() => {}} />);
-    const btn = await screen.findByRole("button", { name: /indizieren/i });
+    const btn = await screen.findByRole("button", { name: /^indizieren$/i });
     fireEvent.click(btn);
-    await waitFor(() => expect(indexPlaylist).toHaveBeenCalledWith("pl1", expect.any(Object)));
+    await waitFor(() =>
+      expect(indexPlaylist).toHaveBeenCalledWith(
+        "pl1",
+        expect.objectContaining({ force: false }),
+      ),
+    );
+  });
+
+  it("offers a re-index (force) button when fully indexed", async () => {
+    const { fetchStatus, indexPlaylist } = await import("@/lib/spotify/playlist-index");
+    vi.mocked(fetchStatus).mockResolvedValue({ total: 5, indexed: 5, missing: [], all: [] });
+
+    render(<PlaylistPicker selectedIds={["pl1"]} onChange={() => {}} />);
+    // vollständig indiziert
+    expect(await screen.findByText(/indiziert ✓/i)).toBeTruthy();
+    const reBtn = await screen.findByRole("button", { name: /neu indizieren/i });
+    fireEvent.click(reBtn);
+    await waitFor(() =>
+      expect(indexPlaylist).toHaveBeenCalledWith(
+        "pl1",
+        expect.objectContaining({ force: true }),
+      ),
+    );
   });
 });

@@ -70,4 +70,28 @@ describe("resolveYears", () => {
     });
     expect(result).toEqual([{ spotifyTrackId: "4", year: 1995, source: "musicbrainz" }]);
   });
+
+  it("force: ignores the cache and re-looks-up every track, overwriting", async () => {
+    const getCached = vi.fn(async () => [
+      { spotifyTrackId: "5", year: 1900, source: "spotify" as const },
+    ]);
+    const putCached = vi.fn().mockResolvedValue(undefined);
+    const result = await resolveYears(
+      [q("5", 2001)],
+      {
+        getCached,
+        putCached,
+        lookup: async () => 1988, // MusicBrainz liefert jetzt ein genaues Jahr
+        limit: (fn) => fn(),
+      },
+      { force: true },
+    );
+    // Cache wird bei force ignoriert
+    expect(getCached).not.toHaveBeenCalled();
+    // neuer Wert kommt von MusicBrainz und wird geschrieben
+    expect(result).toEqual([{ spotifyTrackId: "5", year: 1988, source: "musicbrainz" }]);
+    expect(putCached).toHaveBeenCalledWith([
+      { spotifyTrackId: "5", year: 1988, source: "musicbrainz", title: "t5", artist: "a5" },
+    ]);
+  });
 });

@@ -6,11 +6,18 @@ import { createRateLimiter } from "./rate-limit";
 
 const limit = createRateLimiter(1100); // ≥ 1 req/s mit Sicherheitsabstand
 
-export function enrichTracks(queries: TrackQuery[]): Promise<ResolvedYear[]> {
-  return resolveYears(queries, {
-    getCached,
-    putCached,
-    lookup: (q) => lookupYear(q),
-    limit,
-  });
+export function enrichTracks(
+  queries: TrackQuery[],
+  opts: { force?: boolean } = {},
+): Promise<ResolvedYear[]> {
+  return resolveYears(
+    queries,
+    {
+      getCached,
+      putCached,
+      lookup: (q) => lookupYear(q),
+      limit,
+    },
+    opts,
+  );
 }

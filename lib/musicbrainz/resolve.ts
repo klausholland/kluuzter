@@ -12,11 +12,17 @@ export type ResolveDeps = {
 export async function resolveYears(
   queries: TrackQuery[],
   deps: ResolveDeps,
+  opts: { force?: boolean } = {},
 ): Promise<ResolvedYear[]> {
-  const cached = await deps.getCached(queries.map((q) => q.spotifyTrackId));
+  // force: Cache komplett ignorieren und alle Tracks neu auflösen (überschreiben).
+  const cached = opts.force
+    ? []
+    : await deps.getCached(queries.map((q) => q.spotifyTrackId));
   const cachedById = new Map(cached.map((c) => [c.spotifyTrackId, c]));
 
-  const misses = queries.filter((q) => !cachedById.has(q.spotifyTrackId));
+  const misses = opts.force
+    ? queries
+    : queries.filter((q) => !cachedById.has(q.spotifyTrackId));
 
   const fresh: Array<ResolvedYear & { title: string; artist: string }> = [];
   for (const q of misses) {

@@ -42,10 +42,11 @@ function IndexControls({ playlistId }: { playlistId: string }) {
     };
   }, [playlistId]);
 
-  async function runIndex() {
+  async function runIndex(force = false) {
     setState({ kind: "indexing", done: 0, total: 0 });
     try {
       await indexPlaylist(playlistId, {
+        force,
         onProgress: (done, total) => setState({ kind: "indexing", done, total }),
       });
       await loadStatus();
@@ -79,10 +80,18 @@ function IndexControls({ playlistId }: { playlistId: string }) {
       <span className={`text-xs ${fully ? "text-green-400" : "text-neutral-300"}`}>
         {fully ? "indiziert ✓" : `${state.indexed} / ${state.total} indiziert`}
       </span>
-      {!fully && (
+      {fully ? (
         <button
           type="button"
-          onClick={runIndex}
+          onClick={() => runIndex(true)}
+          className="rounded bg-neutral-700 px-2 py-1 text-xs font-semibold"
+        >
+          Neu indizieren
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => runIndex(false)}
           className="rounded bg-fuchsia-600 px-2 py-1 text-xs font-semibold"
         >
           Indizieren

@@ -58,6 +58,31 @@ describe("indexPlaylist", () => {
     expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
+  it("force: re-indexes ALL tracks and sends force in the body", async () => {
+    const all = Array.from({ length: 3 }, (_, i) => q(String(i)));
+    const forceFlags: unknown[] = [];
+    const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
+      if (url.startsWith("/api/playlist-status")) {
+        // bereits vollständig indiziert: missing leer, all gefüllt
+        return jsonResponse({ total: 3, indexed: 3, missing: [], all });
+      }
+      const parsed = JSON.parse(init!.body as string) as { tracks: TrackQuery[]; force?: boolean };
+      forceFlags.push(parsed.force);
+      return jsonResponse({ years: [] });
+    }) as unknown as typeof fetch;
+
+    const progress: Array<[number, number]> = [];
+    await indexPlaylist("pl1", {
+      force: true,
+      fetchImpl,
+      onProgress: (done, total) => progress.push([done, total]),
+    });
+
+    // trotz missing=[] werden ALLE 3 Tracks neu indiziert
+    expect(progress.at(-1)).toEqual([3, 3]);
+    expect(forceFlags).toEqual([true]); // force im Request-Body
+  });
+
   it("retries a failed batch once, then throws", async () => {
     const missing = [q("a")];
     let indexCalls = 0;

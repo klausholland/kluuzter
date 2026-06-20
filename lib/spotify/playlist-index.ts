@@ -13,6 +13,7 @@ export async function fetchStatus(
 
 async function postBatch(
   tracks: TrackQuery[],
+  force: boolean,
   fetchImpl: typeof fetch,
 ): Promise<void> {
   let attempt = 0;
@@ -22,7 +23,7 @@ async function postBatch(
     const res = await fetchImpl("/api/index", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ tracks }),
+      body: JSON.stringify({ tracks, force }),
     });
     if (res.ok) return;
     if (attempt >= 2) throw new Error(`index batch failed (${res.status})`);
@@ -32,20 +33,24 @@ async function postBatch(
 export async function indexPlaylist(
   playlistId: string,
   opts: {
+    force?: boolean;
     onProgress?: (done: number, total: number) => void;
     fetchImpl?: typeof fetch;
   } = {},
 ): Promise<void> {
   const fetchImpl = opts.fetchImpl ?? fetch;
+  const force = opts.force ?? false;
   const status = await fetchStatus(playlistId, fetchImpl);
-  const total = status.missing.length;
+  // force: alle Tracks neu indizieren; sonst nur die fehlenden.
+  const work = force ? status.all : status.missing;
+  const total = work.length;
   if (total === 0) {
     opts.onProgress?.(0, 0);
     return;
   }
   let done = 0;
-  for (const batch of chunk(status.missing, INDEX_BATCH_SIZE)) {
-    await postBatch(batch, fetchImpl);
+  for (const batch of chunk(work, INDEX_BATCH_SIZE)) {
+    await postBatch(batch, force, fetchImpl);
     done += batch.length;
     opts.onProgress?.(done, total);
   }

@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   if (!token) {
     return NextResponse.json({ error: "not authenticated" }, { status: 401 });
   }
-  let body: { tracks?: unknown };
+  let body: { tracks?: unknown; force?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -22,6 +22,6 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  const years = await enrichTracks(body.tracks);
+  const years = await enrichTracks(body.tracks, { force: body.force === true });
   return NextResponse.json({ years });
 }
