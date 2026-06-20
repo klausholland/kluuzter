@@ -1,4 +1,6 @@
 import type { Card } from "@/lib/engine/types";
+import { Box, Paper, Typography } from "@mui/material";
+import { gradients } from "@/lib/theme";
 
 export function GameCard({
   card,
@@ -16,44 +18,75 @@ export function GameCard({
   /** Öffnet die Detailansicht (nur für aufgedeckte Karten). */
   onClick?: () => void;
 }) {
+  const base = {
+    width: { xs: 96, sm: 112 },
+    aspectRatio: "3 / 4",
+    flexShrink: 0,
+    borderRadius: 3,
+    p: 1,
+    display: "flex",
+    flexDirection: "column",
+    textAlign: "center",
+  } as const;
+
   if (faceDown) {
     return (
-      <div
+      <Paper
+        elevation={6}
         draggable={draggable}
         onDragStart={onDragStart}
-        className={`flex aspect-[3/4] w-24 shrink-0 flex-col items-center justify-center rounded-xl bg-gradient-to-br from-neutral-700 to-neutral-900 p-2 text-center shadow-lg ring-2 ring-white/10 sm:w-28 ${
-          draggable ? "cursor-grab active:cursor-grabbing" : ""
-        }`}
+        sx={{
+          ...base,
+          alignItems: "center",
+          justifyContent: "center",
+          background: gradients.mystery,
+          cursor: draggable ? "grab" : "default",
+          "&:active": { cursor: draggable ? "grabbing" : "default" },
+        }}
       >
-        <p className="text-4xl font-black text-white">?</p>
-        <p className="mt-1 text-[10px] uppercase tracking-wide text-white/60">
+        <Typography sx={{ fontSize: 40, fontWeight: 900, color: "#fff" }}>
+          ?
+        </Typography>
+        <Typography
+          sx={{ mt: 0.5, fontSize: 10, letterSpacing: 1, color: "rgba(255,255,255,0.6)", textTransform: "uppercase" }}
+        >
           Mystery-Song
-        </p>
-      </div>
+        </Typography>
+      </Paper>
     );
   }
 
   return (
-    <div
+    <Paper
+      elevation={8}
       draggable={draggable}
       onDragStart={onDragStart}
       onClick={onClick}
       role={onClick ? "button" : undefined}
       aria-label={onClick ? `Details: ${card.artist} – ${card.title}` : undefined}
-      className={`flex aspect-[3/4] w-24 shrink-0 flex-col justify-between rounded-xl bg-gradient-to-br from-fuchsia-600 to-indigo-700 p-2 text-center shadow-lg sm:w-28 ${
-        onClick ? "cursor-pointer" : ""
-      }`}
+      sx={{
+        ...base,
+        justifyContent: "space-between",
+        background: gradients.cardFront,
+        cursor: onClick ? "pointer" : "default",
+        transition: "transform 120ms ease",
+        "&:hover": onClick ? { transform: "translateY(-2px)" } : undefined,
+      }}
     >
-      <p className="truncate text-[11px] font-semibold text-white/90">
+      <Typography noWrap sx={{ fontSize: 11, fontWeight: 600, color: "rgba(255,255,255,0.9)" }}>
         {card.artist}
-      </p>
-      <p className="text-3xl font-black text-white">{card.year}</p>
-      <div>
-        <p className="truncate text-[11px] text-white/90">{card.title}</p>
+      </Typography>
+      <Typography sx={{ fontSize: 28, fontWeight: 900, color: "#fff" }}>
+        {card.year}
+      </Typography>
+      <Box>
+        <Typography noWrap sx={{ fontSize: 11, color: "rgba(255,255,255,0.9)" }}>
+          {card.title}
+        </Typography>
         {card.yearSource === "spotify" && (
-          <p className="text-[9px] text-amber-200">≈ ungenau</p>
+          <Typography sx={{ fontSize: 9, color: "#fde68a" }}>≈ ungenau</Typography>
         )}
-      </div>
-    </div>
+      </Box>
+    </Paper>
   );
 }
