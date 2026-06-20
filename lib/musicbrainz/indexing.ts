@@ -44,3 +44,18 @@ export function buildDeckFromCache(
   }
   return shuffle(cards, rng);
 }
+
+export const INDEX_BATCH_SIZE = 20;
+
+export function isValidBatch(tracks: unknown): tracks is TrackQuery[] {
+  if (!Array.isArray(tracks)) return false;
+  if (tracks.length > INDEX_BATCH_SIZE) return false;
+  return tracks.every(
+    (t) =>
+      t != null &&
+      typeof t.spotifyTrackId === "string" &&
+      typeof t.title === "string" &&
+      typeof t.artist === "string" &&
+      typeof t.spotifyReleaseYear === "number",
+  );
+}
