@@ -1,4 +1,5 @@
 import type { Card } from "@/lib/engine/types";
+import { Box } from "@mui/material";
 import { GameCard } from "./Card";
 import { Slot } from "./Slot";
 
@@ -41,8 +42,8 @@ export function Timeline({
     }
   }
   return (
-    <div className="flex items-center gap-1 overflow-x-auto px-3 py-4">
+    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, overflowX: "auto", px: 1.5, py: 2 }}>
       {nodes}
-    </div>
+    </Box>
   );
 }

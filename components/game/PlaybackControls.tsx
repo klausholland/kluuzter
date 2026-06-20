@@ -1,4 +1,7 @@
 import type { PlaybackState } from "@/lib/spotify/useSpotifyPlayer";
+import { Box, IconButton, LinearProgress } from "@mui/material";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PauseIcon from "@mui/icons-material/Pause";
 
 export function PlaybackControls({
   playback,
@@ -15,22 +18,16 @@ export function PlaybackControls({
   const paused = playback?.paused ?? true;
 
   return (
-    <div className="flex w-full max-w-md flex-col items-center gap-2">
-      <button
-        type="button"
+    <Box sx={{ width: "100%", maxWidth: 448, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+      <IconButton
         onClick={onToggle}
         disabled={disabled}
         aria-label={paused ? "Abspielen" : "Pausieren"}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-green-600 text-2xl disabled:opacity-40"
+        sx={{ width: 56, height: 56, bgcolor: "primary.main", color: "primary.contrastText", "&:hover": { bgcolor: "primary.dark" } }}
       >
-        {paused ? "▶" : "⏸"}
-      </button>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-700">
-        <div
-          className="h-full bg-green-500 transition-[width] duration-200"
-          style={{ width: `${pct}%` }}
-        />
-      </div>
-    </div>
+        {paused ? <PlayArrowIcon /> : <PauseIcon />}
+      </IconButton>
+      <LinearProgress variant="determinate" value={pct} sx={{ width: "100%", height: 8, borderRadius: 4 }} />
+    </Box>
   );
 }

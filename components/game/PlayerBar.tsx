@@ -1,5 +1,6 @@
 import type { Player } from "@/lib/engine/types";
 import { scoredCardCount } from "@/lib/engine/timeline";
+import { Chip, Stack } from "@mui/material";
 
 export function PlayerBar({
   players,
@@ -9,22 +10,27 @@ export function PlayerBar({
   activeIndex: number;
 }) {
   return (
-    <div className="flex gap-2 overflow-x-auto border-b border-neutral-800 px-3 py-2">
+    <Stack
+      direction="row"
+      spacing={1}
+      sx={{ overflowX: "auto", borderBottom: 1, borderColor: "divider", px: 1.5, py: 1 }}
+    >
       {players.map((p, i) => (
-        <div
+        <Chip
           key={p.id}
-          className={`flex shrink-0 flex-col rounded-lg px-3 py-1 text-sm ${
-            i === activeIndex
-              ? "bg-green-600/30 ring-1 ring-green-400"
-              : "bg-neutral-800"
-          }`}
-        >
-          <span className="font-semibold">{p.name}</span>
-          <span className="text-xs text-neutral-300">
-            {scoredCardCount(p)} Karten · {p.tokens} Token
-          </span>
-        </div>
+          color={i === activeIndex ? "success" : undefined}
+          variant={i === activeIndex ? "filled" : "outlined"}
+          sx={{ flexShrink: 0, height: "auto", py: 0.5, "& .MuiChip-label": { display: "block" } }}
+          label={
+            <Stack sx={{ alignItems: "flex-start" }}>
+              <span style={{ fontWeight: 600, fontSize: "0.875rem" }}>{p.name}</span>
+              <span style={{ fontSize: "0.75rem", opacity: 0.8 }}>
+                {scoredCardCount(p)} Karten · {p.tokens} Token
+              </span>
+            </Stack>
+          }
+        />
       ))}
-    </div>
+    </Stack>
   );
 }
