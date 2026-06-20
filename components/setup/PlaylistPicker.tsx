@@ -11,7 +11,6 @@ import {
   List,
   ListItemButton,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 
@@ -118,7 +117,6 @@ export function PlaylistPicker({
   selectedIds: string[];
   onChange: (ids: string[], totalTracks: number) => void;
 }) {
-  const [query, setQuery] = useState("");
   const [playlists, setPlaylists] = useState<SpotifyPlaylistSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -127,14 +125,14 @@ export function PlaylistPicker({
     let active = true;
     setLoading(true);
     setError(null);
-    fetchPlaylists(query)
+    fetchPlaylists("")
       .then((p) => active && setPlaylists(p))
       .catch(() => active && setError("Playlists konnten nicht geladen werden."))
       .finally(() => active && setLoading(false));
     return () => {
       active = false;
     };
-  }, [query]);
+  }, []);
 
   function toggle(p: SpotifyPlaylistSummary) {
     const next = selectedIds.includes(p.id)
@@ -148,14 +146,6 @@ export function PlaylistPicker({
 
   return (
     <Stack spacing={1}>
-      <TextField
-        type="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Öffentliche Playlists suchen…"
-        size="small"
-        fullWidth
-      />
       {loading && (
         <Typography variant="body2" color="text.secondary">
           Lädt…
