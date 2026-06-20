@@ -1,35 +1,57 @@
 "use client";
 
 import { useActionState } from "react";
+import Container from "@mui/material/Container";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import Alert from "@mui/material/Alert";
+import Button from "@mui/material/Button";
 import { login } from "./actions";
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState(login, {});
   return (
-    <main className="flex min-h-screen items-center justify-center p-6">
-      <form
+    <Container
+      component="main"
+      maxWidth="sm"
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Paper
+        component="form"
         action={formAction}
-        className="w-full max-w-sm space-y-4 rounded-xl bg-neutral-800 p-6"
+        elevation={3}
+        sx={{ width: "100%", p: 4 }}
       >
-        <h1 className="text-xl font-bold">Anmelden</h1>
-        <input
-          type="password"
-          name="password"
-          autoFocus
-          placeholder="Passwort"
-          className="w-full rounded-lg bg-neutral-700 px-3 py-2 outline-none"
-        />
-        {state?.error && (
-          <p className="text-sm text-red-400">{state.error}</p>
-        )}
-        <button
-          type="submit"
-          disabled={pending}
-          className="w-full rounded-lg bg-green-600 px-3 py-2 font-semibold disabled:opacity-50"
-        >
-          {pending ? "..." : "Weiter"}
-        </button>
-      </form>
-    </main>
+        <Stack spacing={2}>
+          <Typography variant="h5" component="h1" sx={{ fontWeight: 700 }}>
+            Anmelden
+          </Typography>
+          <TextField
+            type="password"
+            name="password"
+            label="Passwort"
+            autoFocus
+            fullWidth
+          />
+          {state?.error && <Alert severity="error">{state.error}</Alert>}
+          <Button
+            type="submit"
+            disabled={pending}
+            variant="contained"
+            color="success"
+            fullWidth
+          >
+            {pending ? "..." : "Weiter"}
+          </Button>
+        </Stack>
+      </Paper>
+    </Container>
   );
 }
