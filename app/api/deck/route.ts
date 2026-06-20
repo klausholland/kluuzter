@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server";
 import { getSessionAccessToken } from "@/lib/spotify/session-token";
 import { getPlaylistTracks } from "@/lib/spotify/api";
-import { buildDeck, dedupeTracks } from "@/lib/spotify/deck";
-import { enrichTracks } from "@/lib/musicbrainz/service";
+import { dedupeTracks } from "@/lib/spotify/deck";
+import { getCached } from "@/lib/musicbrainz/cache";
+import { buildDeckFromCache } from "@/lib/musicbrainz/indexing";
 import type { SpotifyTrack } from "@/lib/spotify/types";
+
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   const token = await getSessionAccessToken();
@@ -18,13 +21,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid JSON" }, { status: 400 });
   }
   if (!Array.isArray(body.playlistIds) || body.playlistIds.length === 0) {
-    return NextResponse.json({ error: "playlistIds must be a non-empty array" }, { status: 400 });
+    return NextResponse.json(
+      { error: "playlistIds must be a non-empty array" },
+      { status: 400 },
+    );
   }
 
   const all: SpotifyTrack[] = [];
   for (const id of body.playlistIds as string[]) {
     all.push(...(await getPlaylistTracks(token, id)));
   }
-  const deck = await buildDeck(dedupeTracks(all), enrichTracks);
+  const tracks = dedupeTracks(all);
+  const cached = await getCached(tracks.map((t) => t.id));
+  const deck = buildDeckFromCache(tracks, cached);
+
+  if (deck.length === 0) {
+    return NextResponse.json(
+      { error: "no indexed tracks — please index the playlist first" },
+      { status: 409 },
+    );
+  }
   return NextResponse.json({ deck });
 }
