@@ -56,4 +56,13 @@ describe("Timeline", () => {
     fireEvent.drop(screen.getByLabelText("Slot 1")); // Slot 1 ist disabled
     expect(onSelect).not.toHaveBeenCalled();
   });
+
+  it("calls onCardClick with the card when a revealed card is clicked", () => {
+    const onCardClick = vi.fn();
+    render(
+      <Timeline cards={cards} availableSlots={[0, 1, 2]} selectedSlot={null} onSelectSlot={() => {}} interactive onCardClick={onCardClick} />,
+    );
+    fireEvent.click(screen.getByLabelText("Details: a – a"));
+    expect(onCardClick).toHaveBeenCalledWith(cards[0]);
+  });
 });

@@ -5,6 +5,7 @@ export function GameCard({
   faceDown = false,
   draggable = false,
   onDragStart,
+  onClick,
 }: {
   card: Card;
   /** Verdeckte Mystery-Karte: Interpret, Jahr und Titel bleiben verborgen. */
@@ -12,6 +13,8 @@ export function GameCard({
   /** Macht die Karte per HTML5-DnD ziehbar (z. B. die Mystery-Karte). */
   draggable?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
+  /** Öffnet die Detailansicht (nur für aufgedeckte Karten). */
+  onClick?: () => void;
 }) {
   if (faceDown) {
     return (
@@ -34,7 +37,12 @@ export function GameCard({
     <div
       draggable={draggable}
       onDragStart={onDragStart}
-      className="flex aspect-[3/4] w-24 shrink-0 flex-col justify-between rounded-xl bg-gradient-to-br from-fuchsia-600 to-indigo-700 p-2 text-center shadow-lg sm:w-28"
+      onClick={onClick}
+      role={onClick ? "button" : undefined}
+      aria-label={onClick ? `Details: ${card.artist} – ${card.title}` : undefined}
+      className={`flex aspect-[3/4] w-24 shrink-0 flex-col justify-between rounded-xl bg-gradient-to-br from-fuchsia-600 to-indigo-700 p-2 text-center shadow-lg sm:w-28 ${
+        onClick ? "cursor-pointer" : ""
+      }`}
     >
       <p className="truncate text-[11px] font-semibold text-white/90">
         {card.artist}

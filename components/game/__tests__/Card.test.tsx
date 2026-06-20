@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { describe, it, expect, afterEach } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { describe, it, expect, afterEach, vi } from "vitest";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { GameCard } from "../Card";
 import type { Card } from "@/lib/engine/types";
 
@@ -35,5 +35,12 @@ describe("GameCard", () => {
   it("marks a spotify-sourced year as approximate when revealed", () => {
     render(<GameCard card={{ ...card, yearSource: "spotify" }} />);
     expect(screen.getByText(/ungenau/)).toBeTruthy();
+  });
+
+  it("calls onClick when a revealed card is clicked", () => {
+    const onClick = vi.fn();
+    render(<GameCard card={card} onClick={onClick} />);
+    fireEvent.click(screen.getByLabelText("Details: Dire Straits – Sultans of Swing"));
+    expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

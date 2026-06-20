@@ -8,12 +8,14 @@ export function Timeline({
   selectedSlot,
   onSelectSlot,
   interactive,
+  onCardClick,
 }: {
   cards: Card[];
   availableSlots: number[];
   selectedSlot: number | null;
   onSelectSlot: (slot: number) => void;
   interactive: boolean;
+  onCardClick?: (card: Card) => void;
 }) {
   const free = new Set(availableSlots);
   const nodes: React.ReactNode[] = [];
@@ -28,7 +30,14 @@ export function Timeline({
       />,
     );
     if (i < cards.length) {
-      nodes.push(<GameCard key={cards[i].id} card={cards[i]} />);
+      const c = cards[i];
+      nodes.push(
+        <GameCard
+          key={c.id}
+          card={c}
+          onClick={onCardClick ? () => onCardClick(c) : undefined}
+        />,
+      );
     }
   }
   return (
