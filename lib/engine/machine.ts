@@ -153,7 +153,7 @@ export const gameMachine = setup({
     },
   },
 }).createMachine({
-  id: "hitster",
+  id: "kluuzter",
   context: ({ input }) => initialContext(input),
   initial: "dealing",
   states: {

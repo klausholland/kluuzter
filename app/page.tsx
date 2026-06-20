@@ -12,7 +12,7 @@ export default async function Home() {
   const premium = connected ? isPremium(profile) : false;
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-6 p-6">
-      <h1 className="text-2xl font-bold">Hitster</h1>
+      <h1 className="text-2xl font-bold">Kluuzter</h1>
       {connected ? (
         <>
           <p className="text-sm">
