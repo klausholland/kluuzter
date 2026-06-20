@@ -189,7 +189,7 @@ export function GameScreen({
         <ConfirmDialog
           title="Spiel abbrechen?"
           message="Der aktuelle Spielfortschritt geht verloren."
-          confirmLabel="Abbrechen"
+          confirmLabel="Spiel beenden"
           cancelLabel="Weiterspielen"
           onConfirm={onRestart}
           onCancel={() => setShowAbort(false)}

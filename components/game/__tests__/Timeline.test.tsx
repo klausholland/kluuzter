@@ -64,5 +64,6 @@ describe("Timeline", () => {
     );
     fireEvent.click(screen.getByLabelText("Details: a – a"));
     expect(onCardClick).toHaveBeenCalledWith(cards[0]);
+    expect(onCardClick).toHaveBeenCalledTimes(1);
   });
 });

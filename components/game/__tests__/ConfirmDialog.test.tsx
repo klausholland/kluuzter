@@ -41,4 +41,10 @@ describe("ConfirmDialog", () => {
     fireEvent.keyDown(window, { key: "Escape" });
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
+
+  it("calls onCancel when the backdrop is clicked", () => {
+    const { onCancel } = setup();
+    fireEvent.click(screen.getByRole("dialog"));
+    expect(onCancel).toHaveBeenCalledTimes(1);
+  });
 });

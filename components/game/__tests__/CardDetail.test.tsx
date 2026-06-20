@@ -37,4 +37,18 @@ describe("CardDetail", () => {
     render(<CardDetail card={{ ...card, yearSource: "spotify" }} onClose={() => {}} />);
     expect(screen.getByText(/ungenau/)).toBeTruthy();
   });
+
+  it("calls onClose when the backdrop is clicked", () => {
+    const onClose = vi.fn();
+    render(<CardDetail card={card} onClose={onClose} />);
+    fireEvent.click(screen.getByRole("dialog"));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls onClose when Escape is pressed", () => {
+    const onClose = vi.fn();
+    render(<CardDetail card={card} onClose={onClose} />);
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
 });
