@@ -8,3 +8,6 @@ next-env.d.ts
 
 # Lokale mkcert-Zertifikate (privater Schlüssel — niemals committen)
 *.pem
+
+# Vercel CLI
+.vercel
