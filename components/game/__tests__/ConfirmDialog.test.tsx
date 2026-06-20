@@ -38,13 +38,13 @@ describe("ConfirmDialog", () => {
 
   it("calls onCancel when Escape is pressed", () => {
     const { onCancel } = setup();
-    fireEvent.keyDown(window, { key: "Escape" });
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   it("calls onCancel when the backdrop is clicked", () => {
     const { onCancel } = setup();
-    fireEvent.click(screen.getByRole("dialog"));
+    fireEvent.click(document.querySelector(".MuiBackdrop-root")!);
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
 });

@@ -41,14 +41,14 @@ describe("CardDetail", () => {
   it("calls onClose when the backdrop is clicked", () => {
     const onClose = vi.fn();
     render(<CardDetail card={card} onClose={onClose} />);
-    fireEvent.click(screen.getByRole("dialog"));
+    fireEvent.click(document.querySelector(".MuiBackdrop-root")!);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
   it("calls onClose when Escape is pressed", () => {
     const onClose = vi.fn();
     render(<CardDetail card={card} onClose={onClose} />);
-    fireEvent.keyDown(window, { key: "Escape" });
+    fireEvent.keyDown(screen.getByRole("dialog"), { key: "Escape" });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 });

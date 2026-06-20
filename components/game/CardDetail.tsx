@@ -1,58 +1,26 @@
 "use client";
 
-import { useEffect } from "react";
 import type { Card } from "@/lib/engine/types";
+import { Dialog, DialogContent, IconButton, Box, Typography } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
-export function CardDetail({
-  card,
-  onClose,
-}: {
-  card: Card;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
+export function CardDetail({ card, onClose }: { card: Card; onClose: () => void }) {
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={`${card.artist} – ${card.title}`}
-      onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm space-y-3 rounded-2xl bg-neutral-900 p-6 text-center ring-1 ring-white/10"
-      >
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Schließen"
-          className="ml-auto block text-neutral-400 hover:text-white"
-        >
-          ✕
-        </button>
+    <Dialog open onClose={onClose} aria-label={`${card.artist} – ${card.title}`} maxWidth="xs" fullWidth>
+      <DialogContent sx={{ textAlign: "center", position: "relative", pt: 5 }}>
+        <IconButton aria-label="Schließen" onClick={onClose} sx={{ position: "absolute", top: 8, right: 8 }}>
+          <CloseIcon />
+        </IconButton>
         {card.coverUrl && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={card.coverUrl}
-            alt=""
-            className="mx-auto h-40 w-40 rounded-lg object-cover"
-          />
+          <Box component="img" src={card.coverUrl} alt="" sx={{ width: 160, height: 160, borderRadius: 2, objectFit: "cover", mx: "auto", mb: 2 }} />
         )}
-        <p className="text-xl font-bold text-white">{card.artist}</p>
-        <p className="text-base text-neutral-200">{card.title}</p>
-        <p className="text-3xl font-black text-white">{card.year}</p>
+        <Typography variant="h6" sx={{ fontWeight: 700 }}>{card.artist}</Typography>
+        <Typography sx={{ color: "text.secondary" }}>{card.title}</Typography>
+        <Typography sx={{ fontSize: 32, fontWeight: 900, mt: 1 }}>{card.year}</Typography>
         {card.yearSource === "spotify" && (
-          <p className="text-sm text-amber-300">≈ Jahr ungenau (Spotify-Quelle)</p>
+          <Typography sx={{ color: "warning.light", mt: 1 }}>≈ Jahr ungenau (Spotify-Quelle)</Typography>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
