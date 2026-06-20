@@ -1,5 +1,9 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import ThemeRegistry from "./ThemeRegistry";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "Kluuzter",
@@ -12,9 +16,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="de">
-      <body className="min-h-screen bg-neutral-900 text-neutral-100">
-        {children}
+    <html lang="de" className={inter.variable}>
+      <body>
+        <ThemeRegistry>{children}</ThemeRegistry>
       </body>
     </html>
   );
