@@ -17,6 +17,7 @@ import { GameCard } from "./Card";
 import { CounterOverlay } from "./CounterOverlay";
 import { RevealOverlay } from "./RevealOverlay";
 import { GameOverScreen } from "./GameOverScreen";
+import { ConfirmDialog } from "./ConfirmDialog";
 
 async function getAccessToken(): Promise<string> {
   const res = await fetch("/api/spotify/token");
@@ -35,6 +36,7 @@ export function GameScreen({
   const { deviceId, ready, error, playback, togglePlay } = useSpotifyPlayer();
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [playError, setPlayError] = useState<string | null>(null);
+  const [showAbort, setShowAbort] = useState(false);
 
   const card = context.currentCard;
 
@@ -72,6 +74,18 @@ export function GameScreen({
 
   return (
     <div className="flex min-h-screen flex-col">
+      <div className="flex items-center justify-between border-b border-neutral-800 px-3 py-1">
+        <span className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
+          Kluuzter
+        </span>
+        <button
+          type="button"
+          onClick={() => setShowAbort(true)}
+          className="rounded-lg bg-neutral-800 px-3 py-1 text-xs text-neutral-300 hover:bg-neutral-700"
+        >
+          Abbrechen
+        </button>
+      </div>
       <PlayerBar players={context.players} activeIndex={context.activeIndex} />
 
       {error && (
@@ -165,6 +179,17 @@ export function GameScreen({
           onContinue={(claimedCorrect) =>
             send({ type: "CONTINUE", claimedCorrect })
           }
+        />
+      )}
+
+      {showAbort && (
+        <ConfirmDialog
+          title="Spiel abbrechen?"
+          message="Der aktuelle Spielfortschritt geht verloren."
+          confirmLabel="Abbrechen"
+          cancelLabel="Weiterspielen"
+          onConfirm={onRestart}
+          onCancel={() => setShowAbort(false)}
         />
       )}
     </div>
