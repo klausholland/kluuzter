@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { GameInput } from "@/lib/engine/types";
+import type { Card, GameInput } from "@/lib/engine/types";
 import { useGameEngine } from "@/lib/engine/useGameEngine";
 import {
   activePlayer,
@@ -18,6 +18,7 @@ import { CounterOverlay } from "./CounterOverlay";
 import { RevealOverlay } from "./RevealOverlay";
 import { GameOverScreen } from "./GameOverScreen";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { CardDetail } from "./CardDetail";
 
 async function getAccessToken(): Promise<string> {
   const res = await fetch("/api/spotify/token");
@@ -37,6 +38,7 @@ export function GameScreen({
   const [selectedSlot, setSelectedSlot] = useState<number | null>(null);
   const [playError, setPlayError] = useState<string | null>(null);
   const [showAbort, setShowAbort] = useState(false);
+  const [detailCard, setDetailCard] = useState<Card | null>(null);
 
   const card = context.currentCard;
 
@@ -105,6 +107,7 @@ export function GameScreen({
           selectedSlot={selectedSlot}
           onSelectSlot={(s) => setSelectedSlot(s)}
           interactive={phase === "playing"}
+          onCardClick={(c) => setDetailCard(c)}
         />
       </div>
 
@@ -191,6 +194,10 @@ export function GameScreen({
           onConfirm={onRestart}
           onCancel={() => setShowAbort(false)}
         />
+      )}
+
+      {detailCard && (
+        <CardDetail card={detailCard} onClose={() => setDetailCard(null)} />
       )}
     </div>
   );
