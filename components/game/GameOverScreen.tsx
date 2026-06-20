@@ -22,33 +22,31 @@ export function GameOverScreen({
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
           Spiel beendet
         </Typography>
-        <List sx={{ p: 0 }}>
-          <Stack spacing={1}>
-            {ranked.map((p) => (
-              <ListItem
-                key={p.id}
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  borderRadius: 2,
-                  px: 2,
-                  py: 1,
-                  bgcolor: p.id === winnerId ? "rgba(34, 197, 94, 0.3)" : "background.paper",
-                  ...(p.id === winnerId && {
-                    boxShadow: (theme) => `inset 0 0 0 1px ${theme.palette.success.light}`,
-                  }),
-                }}
-              >
-                <Typography sx={{ fontWeight: 600 }}>
-                  {p.id === winnerId ? "🏆 " : ""}
-                  {p.name}
-                </Typography>
-                <Typography>
-                  {scoredCardCount(p)} Karten · {p.tokens} Token
-                </Typography>
-              </ListItem>
-            ))}
-          </Stack>
+        <List sx={{ p: 0, "& > li:not(:last-child)": { mb: 1 } }}>
+          {ranked.map((p) => (
+            <ListItem
+              key={p.id}
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                borderRadius: 2,
+                px: 2,
+                py: 1,
+                bgcolor: p.id === winnerId ? "rgba(34, 197, 94, 0.3)" : "background.paper",
+                ...(p.id === winnerId && {
+                  boxShadow: (theme) => `inset 0 0 0 1px ${theme.palette.success.light}`,
+                }),
+              }}
+            >
+              <Typography sx={{ fontWeight: 600 }}>
+                {p.id === winnerId ? "🏆 " : ""}
+                {p.name}
+              </Typography>
+              <Typography>
+                {scoredCardCount(p)} Karten · {p.tokens} Token
+              </Typography>
+            </ListItem>
+          ))}
         </List>
         <Button onClick={onRestart} fullWidth size="large">
           Neue Runde
