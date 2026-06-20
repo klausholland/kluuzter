@@ -22,7 +22,10 @@ export function PlayerBar({
           variant={i === activeIndex ? "filled" : "outlined"}
           sx={{ flexShrink: 0, height: "auto", py: 0.5, "& .MuiChip-label": { display: "block" } }}
           label={
-            <Stack sx={{ alignItems: "flex-start" }}>
+            <Stack
+              component="span"
+              sx={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}
+            >
               <span style={{ fontWeight: 600, fontSize: "0.875rem" }}>{p.name}</span>
               <span style={{ fontSize: "0.75rem", opacity: 0.8 }}>
                 {scoredCardCount(p)} Karten · {p.tokens} Token

@@ -22,7 +22,7 @@ export function GameCard({
     width: { xs: 96, sm: 112 },
     aspectRatio: "3 / 4",
     flexShrink: 0,
-    borderRadius: 3,
+    borderRadius: "8px",
     p: 1,
     display: "flex",
     flexDirection: "column",

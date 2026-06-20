@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Container from "@mui/material/Container";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
@@ -55,7 +54,6 @@ export default async function Home() {
             </Stack>
             {premium && (
               <Button
-                component={Link}
                 href="/play"
                 variant="contained"
                 color="success"
