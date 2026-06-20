@@ -3,6 +3,17 @@
 import { useEffect, useState } from "react";
 import type { SpotifyPlaylistSummary } from "@/lib/spotify/types";
 import { fetchStatus, indexPlaylist } from "@/lib/spotify/playlist-index";
+import {
+  Alert,
+  Box,
+  Button,
+  LinearProgress,
+  List,
+  ListItemButton,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 
 async function fetchPlaylists(query: string): Promise<SpotifyPlaylistSummary[]> {
   const url = query
@@ -56,48 +67,47 @@ function IndexControls({ playlistId }: { playlistId: string }) {
   }
 
   if (state.kind === "loading") {
-    return <p className="text-xs text-neutral-400">Status wird geladen…</p>;
+    return (
+      <Typography variant="caption" color="text.secondary">
+        Status wird geladen…
+      </Typography>
+    );
   }
   if (state.kind === "error") {
     return (
-      <button type="button" onClick={loadStatus} className="text-xs text-red-400 underline">
+      <Button type="button" onClick={loadStatus} size="small" color="error" variant="text">
         Status-Fehler — erneut versuchen
-      </button>
+      </Button>
     );
   }
   if (state.kind === "indexing") {
     const pct = state.total > 0 ? Math.round((state.done / state.total) * 100) : 0;
     return (
-      <p className="text-xs text-amber-300">
-        Indiziere… {state.done}/{state.total} ({pct}%)
-      </p>
+      <Stack spacing={0.5} sx={{ width: "100%" }}>
+        <Typography variant="caption" color="warning.main">
+          Indiziere… {state.done}/{state.total} ({pct}%)
+        </Typography>
+        <LinearProgress variant="determinate" value={pct} color="warning" />
+      </Stack>
     );
   }
   // ready
   const fully = state.indexed >= state.total && state.total > 0;
   return (
-    <div className="flex items-center gap-2">
-      <span className={`text-xs ${fully ? "text-green-400" : "text-neutral-300"}`}>
+    <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+      <Typography variant="caption" color={fully ? "success.main" : "text.secondary"}>
         {fully ? "indiziert ✓" : `${state.indexed} / ${state.total} indiziert`}
-      </span>
+      </Typography>
       {fully ? (
-        <button
-          type="button"
-          onClick={() => runIndex(true)}
-          className="rounded bg-neutral-700 px-2 py-1 text-xs font-semibold"
-        >
+        <Button type="button" onClick={() => runIndex(true)} size="small">
           Neu indizieren
-        </button>
+        </Button>
       ) : (
-        <button
-          type="button"
-          onClick={() => runIndex(false)}
-          className="rounded bg-fuchsia-600 px-2 py-1 text-xs font-semibold"
-        >
+        <Button type="button" onClick={() => runIndex(false)} size="small" color="secondary">
           Indizieren
-        </button>
+        </Button>
       )}
-    </div>
+    </Stack>
   );
 }
 
@@ -137,45 +147,57 @@ export function PlaylistPicker({
   }
 
   return (
-    <div className="space-y-2">
-      <input
+    <Stack spacing={1}>
+      <TextField
         type="search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Öffentliche Playlists suchen…"
-        className="w-full rounded-lg bg-neutral-700 px-3 py-2 outline-none"
+        size="small"
+        fullWidth
       />
-      {loading && <p className="text-sm text-neutral-400">Lädt…</p>}
-      {error && <p className="text-sm text-red-400">{error}</p>}
-      <ul className="max-h-64 space-y-1 overflow-y-auto">
+      {loading && (
+        <Typography variant="body2" color="text.secondary">
+          Lädt…
+        </Typography>
+      )}
+      {error && <Alert severity="error">{error}</Alert>}
+      <List sx={{ maxHeight: 256, overflowY: "auto", p: 0 }}>
         {playlists.map((p) => {
           const selected = selectedIds.includes(p.id);
           return (
-            <li key={p.id} className="space-y-1">
-              <button
-                type="button"
+            <Box key={p.id} sx={{ mb: 0.5 }}>
+              <ListItemButton
                 onClick={() => toggle(p)}
-                className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left ${
-                  selected ? "bg-green-600/30 ring-1 ring-green-400" : "bg-neutral-800"
-                }`}
+                selected={selected}
+                sx={{
+                  borderRadius: 2,
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 1,
+                }}
               >
-                <span className="truncate">
+                <Typography component="span" sx={{ overflow: "hidden", textOverflow: "ellipsis" }}>
                   {p.name}
-                  <span className="ml-2 text-xs text-neutral-400">
+                  <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
                     {p.trackCount} Tracks · {p.owner}
-                  </span>
-                </span>
-                {selected && <span className="text-green-300">✓</span>}
-              </button>
+                  </Typography>
+                </Typography>
+                {selected && (
+                  <Typography component="span" color="success.main">
+                    ✓
+                  </Typography>
+                )}
+              </ListItemButton>
               {selected && (
-                <div className="px-3">
+                <Box sx={{ px: 2, py: 0.5 }}>
                   <IndexControls playlistId={p.id} />
-                </div>
+                </Box>
               )}
-            </li>
+            </Box>
           );
         })}
-      </ul>
-    </div>
+      </List>
+    </Stack>
   );
 }

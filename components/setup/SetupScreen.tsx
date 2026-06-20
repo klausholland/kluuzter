@@ -4,6 +4,18 @@ import { useState } from "react";
 import type { GameMode } from "@/lib/engine/types";
 import { PlaylistPicker } from "./PlaylistPicker";
 import { minTracksNeeded, type SetupConfig } from "@/components/game/game-setup";
+import {
+  Alert,
+  Button,
+  Container,
+  IconButton,
+  Stack,
+  TextField,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 
 type DraftPlayer = { id: string; name: string };
 
@@ -43,109 +55,115 @@ export function SetupScreen({
     namedPlayers.length >= 1 && playlistIds.length > 0 && targetValue > 0;
 
   return (
-    <main className="mx-auto max-w-lg space-y-6 p-4">
-      <h1 className="text-2xl font-bold">Neues Spiel</h1>
+    <Container component="main" maxWidth="sm" sx={{ py: 4 }}>
+      <Stack spacing={4}>
+        <Typography variant="h4" sx={{ fontWeight: 800 }}>
+          Neues Spiel
+        </Typography>
 
-      <section className="space-y-2">
-        <h2 className="font-semibold">Spieler (Zugreihenfolge)</h2>
-        {players.map((p, i) => (
-          <div key={p.id} className="flex gap-2">
-            <input
-              value={p.name}
-              onChange={(e) =>
-                setPlayers((prev) =>
-                  prev.map((q) => (q.id === p.id ? { ...q, name: e.target.value } : q)),
-                )
-              }
-              placeholder={`Spieler ${i + 1}`}
-              className="flex-1 rounded-lg bg-neutral-700 px-3 py-2 outline-none"
-            />
-            {players.length > 1 && (
-              <button
-                type="button"
-                onClick={() => setPlayers((prev) => prev.filter((q) => q.id !== p.id))}
-                className="rounded-lg bg-neutral-700 px-3"
-                aria-label="Spieler entfernen"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-        ))}
-        <button
-          type="button"
-          onClick={() => setPlayers((prev) => [...prev, newPlayer()])}
-          className="rounded-lg bg-neutral-700 px-3 py-1 text-sm"
-        >
-          + Spieler hinzufügen
-        </button>
-      </section>
+        <Stack spacing={1.5}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Spieler (Zugreihenfolge)
+          </Typography>
+          {players.map((p, i) => (
+            <Stack key={p.id} direction="row" spacing={1}>
+              <TextField
+                fullWidth
+                size="small"
+                value={p.name}
+                onChange={(e) =>
+                  setPlayers((prev) =>
+                    prev.map((q) => (q.id === p.id ? { ...q, name: e.target.value } : q)),
+                  )
+                }
+                placeholder={`Spieler ${i + 1}`}
+              />
+              {players.length > 1 && (
+                <IconButton
+                  type="button"
+                  onClick={() => setPlayers((prev) => prev.filter((q) => q.id !== p.id))}
+                  aria-label="Spieler entfernen"
+                >
+                  <CloseIcon />
+                </IconButton>
+              )}
+            </Stack>
+          ))}
+          <Button
+            type="button"
+            onClick={() => setPlayers((prev) => [...prev, newPlayer()])}
+            size="small"
+            sx={{ alignSelf: "flex-start" }}
+          >
+            + Spieler hinzufügen
+          </Button>
+        </Stack>
 
-      <section className="space-y-2">
-        <h2 className="font-semibold">Modus</h2>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setMode("targetCards")}
-            className={`flex-1 rounded-lg px-3 py-2 ${mode === "targetCards" ? "bg-green-600" : "bg-neutral-700"}`}
+        <Stack spacing={1.5}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Modus
+          </Typography>
+          <ToggleButtonGroup
+            value={mode}
+            exclusive
+            fullWidth
+            onChange={(_e, next) => {
+              if (next) setMode(next as GameMode);
+            }}
           >
-            X Karten erreichen
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("fixedRounds")}
-            className={`flex-1 rounded-lg px-3 py-2 ${mode === "fixedRounds" ? "bg-green-600" : "bg-neutral-700"}`}
-          >
-            Feste Rundenzahl
-          </button>
-        </div>
-        <label className="block text-sm">
-          {mode === "targetCards" ? "Karten zum Sieg" : "Anzahl Runden"}
-          <input
+            <ToggleButton value="targetCards">X Karten erreichen</ToggleButton>
+            <ToggleButton value="fixedRounds">Feste Rundenzahl</ToggleButton>
+          </ToggleButtonGroup>
+          <TextField
             type="number"
-            min={1}
+            label={mode === "targetCards" ? "Karten zum Sieg" : "Anzahl Runden"}
+            size="small"
+            sx={{ maxWidth: 160 }}
+            slotProps={{ htmlInput: { min: 1 } }}
             value={targetValue}
             onChange={(e) => setTargetValue(Math.max(1, Number(e.target.value)))}
-            className="ml-2 w-20 rounded bg-neutral-700 px-2 py-1"
           />
-        </label>
-        <label className="block text-sm">
-          Start-Token je Spieler
-          <input
+          <TextField
             type="number"
-            min={0}
+            label="Start-Token je Spieler"
+            size="small"
+            sx={{ maxWidth: 160 }}
+            slotProps={{ htmlInput: { min: 0 } }}
             value={startTokens}
             onChange={(e) => setStartTokens(Math.max(0, Number(e.target.value)))}
-            className="ml-2 w-20 rounded bg-neutral-700 px-2 py-1"
           />
-        </label>
-      </section>
+        </Stack>
 
-      <section className="space-y-2">
-        <h2 className="font-semibold">Playlists</h2>
-        <PlaylistPicker
-          selectedIds={playlistIds}
-          onChange={(ids, total) => {
-            setPlaylistIds(ids);
-            setAvailableTracks(total);
-          }}
-        />
-        {tooFewTracks && (
-          <p className="text-sm text-amber-400">
-            Achtung: ~{availableTracks} Tracks gewählt, empfohlen sind ≥ {needed} für
-            diesen Modus.
-          </p>
-        )}
-      </section>
+        <Stack spacing={1.5}>
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Playlists
+          </Typography>
+          <PlaylistPicker
+            selectedIds={playlistIds}
+            onChange={(ids, total) => {
+              setPlaylistIds(ids);
+              setAvailableTracks(total);
+            }}
+          />
+          {tooFewTracks && (
+            <Alert severity="warning">
+              Achtung: ~{availableTracks} Tracks gewählt, empfohlen sind ≥ {needed} für
+              diesen Modus.
+            </Alert>
+          )}
+        </Stack>
 
-      <button
-        type="button"
-        disabled={!canStart}
-        onClick={() => onStart(config)}
-        className="w-full rounded-xl bg-green-600 py-3 text-lg font-semibold disabled:opacity-40"
-      >
-        Deck vorbereiten & starten
-      </button>
-    </main>
+        <Button
+          type="button"
+          disabled={!canStart}
+          onClick={() => onStart(config)}
+          fullWidth
+          size="large"
+          color="success"
+        >
+          Deck vorbereiten & starten
+        </Button>
+      </Stack>
+    </Container>
   );
 }
