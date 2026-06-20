@@ -20,7 +20,7 @@ function soloInput(): GameInput {
   return {
     players: [{ id: "A", name: "Anna" }],
     mode: "targetCards",
-    targetValue: 2,
+    targetValue: 3,
     startTokens: 2,
     deck: [
       card("anchorA", 1980), // Anker A
@@ -69,7 +69,7 @@ describe("solo turn (no countering)", () => {
   });
 
   it("reaches gameOver when the card target is met", () => {
-    const actor = start(soloInput()); // targetValue 2
+    const actor = start(soloInput()); // targetValue 3
     // Zug 1: m1 (1970) vor Anker 1980 → Slot 0 korrekt
     actor.send({ type: "PLACE", slot: 0 });
     actor.send({ type: "CONTINUE", claimedCorrect: false });
