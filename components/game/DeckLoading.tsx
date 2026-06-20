@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { Card } from "@/lib/engine/types";
 import type { SetupConfig } from "./game-setup";
+import { Box, Stack, Typography, Button, Alert, CircularProgress } from "@mui/material";
 
 export function DeckLoading({
   config,
@@ -35,28 +36,38 @@ export function DeckLoading({
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-center">
+    <Box
+      component="main"
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 2,
+        p: 3,
+        textAlign: "center",
+      }}
+    >
       {error ? (
-        <>
-          <p className="text-red-400">{error}</p>
-          <button
-            type="button"
-            onClick={onCancel}
-            className="rounded-lg bg-neutral-700 px-4 py-2"
-          >
+        <Stack spacing={2} sx={{ alignItems: "center" }}>
+          <Alert severity="error">{error}</Alert>
+          <Button color="inherit" onClick={onCancel}>
             Zurück
-          </button>
-        </>
+          </Button>
+        </Stack>
       ) : (
         <>
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-neutral-600 border-t-green-500" />
-          <p className="text-lg font-semibold">Deck wird vorbereitet…</p>
-          <p className="text-sm text-neutral-400">
+          <CircularProgress color="success" />
+          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+            Deck wird vorbereitet…
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
             Erscheinungsjahre werden über MusicBrainz angereichert. Das kann je nach
             Playlist-Größe einen Moment dauern.
-          </p>
+          </Typography>
         </>
       )}
-    </main>
+    </Box>
   );
 }

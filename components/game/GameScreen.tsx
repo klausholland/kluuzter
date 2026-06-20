@@ -10,6 +10,15 @@ import {
 } from "@/lib/engine/selectors";
 import { useSpotifyPlayer } from "@/lib/spotify/useSpotifyPlayer";
 import { playTrack } from "@/lib/spotify/playback";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  Box,
+  Stack,
+  Alert,
+} from "@mui/material";
 import { PlayerBar } from "./PlayerBar";
 import { Timeline } from "./Timeline";
 import { PlaybackControls } from "./PlaybackControls";
@@ -75,32 +84,37 @@ export function GameScreen({
   const slots = availableSlots(context);
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="flex items-center justify-between border-b border-neutral-800 px-3 py-1">
-        <span className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
-          Kluuzter
-        </span>
-        <button
-          type="button"
-          onClick={() => setShowAbort(true)}
-          className="rounded-lg bg-neutral-800 px-3 py-1 text-xs text-neutral-300 hover:bg-neutral-700"
-        >
-          Abbrechen
-        </button>
-      </div>
+    <Box sx={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}>
+      <AppBar position="static">
+        <Toolbar variant="dense" sx={{ justifyContent: "space-between" }}>
+          <Typography
+            variant="subtitle2"
+            sx={{ fontWeight: 700, letterSpacing: 1, textTransform: "uppercase" }}
+          >
+            Kluuzter
+          </Typography>
+          <Button
+            size="small"
+            color="inherit"
+            onClick={() => setShowAbort(true)}
+          >
+            Abbrechen
+          </Button>
+        </Toolbar>
+      </AppBar>
       <PlayerBar players={context.players} activeIndex={context.activeIndex} />
 
       {error && (
-        <p className="bg-red-900/50 px-3 py-1 text-center text-sm text-red-200">
+        <Alert severity="error" sx={{ borderRadius: 0 }}>
           {error}
-        </p>
+        </Alert>
       )}
 
-      <div className="flex-1">
-        <p className="px-4 pt-3 text-sm text-neutral-400">
+      <Box sx={{ flex: 1 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ px: 2, pt: 1.5 }}>
           {active.name} ist am Zug — Mystery-Karte auf einen Slot ziehen oder einen
           Slot antippen.
-        </p>
+        </Typography>
         <Timeline
           cards={active.timeline}
           availableSlots={slots}
@@ -109,10 +123,13 @@ export function GameScreen({
           interactive={phase === "playing"}
           onCardClick={(c) => setDetailCard(c)}
         />
-      </div>
+      </Box>
 
       {phase === "playing" && (
-        <div className="flex flex-col items-center gap-3 border-t border-neutral-800 p-4">
+        <Stack
+          spacing={1.5}
+          sx={{ alignItems: "center", borderTop: 1, borderColor: "divider", p: 2 }}
+        >
           {card && (
             <GameCard
               card={card}
@@ -131,33 +148,34 @@ export function GameScreen({
             disabled={!ready}
           />
           {playError && (
-            <div className="flex flex-col items-center gap-2">
-              <p className="text-sm text-amber-400">{playError}</p>
-              <button
-                type="button"
+            <Stack spacing={1} sx={{ alignItems: "center" }}>
+              <Alert severity="warning">{playError}</Alert>
+              <Button
+                color="inherit"
                 onClick={() => {
                   setPlayError(null);
                   setSelectedSlot(null);
                   send({ type: "SKIP" });
                 }}
-                className="rounded-lg bg-neutral-700 px-4 py-2 text-sm"
               >
                 Karte überspringen
-              </button>
-            </div>
+              </Button>
+            </Stack>
           )}
-          <button
-            type="button"
+          <Button
+            fullWidth
+            color="success"
+            size="large"
             disabled={selectedSlot === null}
             onClick={() => {
               send({ type: "PLACE", slot: selectedSlot! });
               setSelectedSlot(null);
             }}
-            className="w-full max-w-md rounded-xl bg-green-600 py-3 font-semibold disabled:opacity-40"
+            sx={{ maxWidth: 448 }}
           >
             Hier einsetzen
-          </button>
-        </div>
+          </Button>
+        </Stack>
       )}
 
       {phase === "countering" && (() => {
@@ -199,6 +217,6 @@ export function GameScreen({
       {detailCard && (
         <CardDetail card={detailCard} onClose={() => setDetailCard(null)} />
       )}
-    </div>
+    </Box>
   );
 }
