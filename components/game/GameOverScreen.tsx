@@ -1,5 +1,8 @@
+"use client";
+
 import type { Player } from "@/lib/engine/types";
 import { scoredCardCount } from "@/lib/engine/timeline";
+import { Button, Container, List, ListItem, Stack, Typography } from "@mui/material";
 
 export function GameOverScreen({
   players,
@@ -14,33 +17,43 @@ export function GameOverScreen({
     (a, b) => scoredCardCount(b) - scoredCardCount(a) || b.tokens - a.tokens,
   );
   return (
-    <main className="mx-auto max-w-md space-y-4 p-6 text-center">
-      <h1 className="text-2xl font-bold">Spiel beendet</h1>
-      <ul className="space-y-2">
-        {ranked.map((p) => (
-          <li
-            key={p.id}
-            className={`flex justify-between rounded-lg px-4 py-2 ${
-              p.id === winnerId ? "bg-green-600/30 ring-1 ring-green-400" : "bg-neutral-800"
-            }`}
-          >
-            <span className="font-semibold">
-              {p.id === winnerId ? "🏆 " : ""}
-              {p.name}
-            </span>
-            <span>
-              {scoredCardCount(p)} Karten · {p.tokens} Token
-            </span>
-          </li>
-        ))}
-      </ul>
-      <button
-        type="button"
-        onClick={onRestart}
-        className="w-full rounded-xl bg-green-600 py-3 text-lg font-semibold"
-      >
-        Neue Runde
-      </button>
-    </main>
+    <Container component="main" maxWidth="sm" sx={{ py: 6, textAlign: "center" }}>
+      <Stack spacing={2}>
+        <Typography variant="h4" sx={{ fontWeight: 700 }}>
+          Spiel beendet
+        </Typography>
+        <List sx={{ p: 0 }}>
+          <Stack spacing={1}>
+            {ranked.map((p) => (
+              <ListItem
+                key={p.id}
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  borderRadius: 2,
+                  px: 2,
+                  py: 1,
+                  bgcolor: p.id === winnerId ? "rgba(34, 197, 94, 0.3)" : "background.paper",
+                  ...(p.id === winnerId && {
+                    boxShadow: (theme) => `inset 0 0 0 1px ${theme.palette.success.light}`,
+                  }),
+                }}
+              >
+                <Typography sx={{ fontWeight: 600 }}>
+                  {p.id === winnerId ? "🏆 " : ""}
+                  {p.name}
+                </Typography>
+                <Typography>
+                  {scoredCardCount(p)} Karten · {p.tokens} Token
+                </Typography>
+              </ListItem>
+            ))}
+          </Stack>
+        </List>
+        <Button onClick={onRestart} fullWidth size="large">
+          Neue Runde
+        </Button>
+      </Stack>
+    </Container>
   );
 }

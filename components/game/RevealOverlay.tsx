@@ -1,5 +1,8 @@
+"use client";
+
 import type { Player, Resolution } from "@/lib/engine/types";
 import { GameCard } from "./Card";
+import { Box, Button, Paper, Stack, Typography } from "@mui/material";
 
 export function RevealOverlay({
   resolution,
@@ -20,70 +23,86 @@ export function RevealOverlay({
   const correct = resolution.activeCorrect;
 
   return (
-    <div
-      className={`fixed inset-0 z-20 flex flex-col items-center justify-center gap-4 p-6 text-center ${
-        correct ? "bg-green-950/90" : "bg-red-950/90"
-      }`}
+    <Box
+      sx={{
+        position: "fixed",
+        inset: 0,
+        zIndex: (theme) => theme.zIndex.modal,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 2,
+        p: 3,
+        textAlign: "center",
+        bgcolor: correct ? "rgba(5, 46, 22, 0.9)" : "rgba(69, 10, 10, 0.9)",
+      }}
     >
       {/* Großes, partytaugliches Richtig/Falsch-Banner */}
-      <div
+      <Paper
         data-testid="verdict-banner"
-        className={`w-full max-w-md rounded-2xl px-6 py-4 shadow-2xl ${
-          correct ? "bg-green-600" : "bg-red-600"
-        }`}
+        elevation={8}
+        sx={{
+          width: "100%",
+          maxWidth: 420,
+          px: 3,
+          py: 2,
+          borderRadius: 4,
+          bgcolor: correct ? "success.main" : "error.main",
+        }}
       >
-        <p className="text-4xl font-black tracking-wide text-white">
+        <Typography sx={{ fontSize: 36, fontWeight: 900, letterSpacing: 1, color: "#fff" }}>
           {correct ? "✓ RICHTIG!" : "✗ DANEBEN!"}
-        </p>
-        <p className="mt-1 text-sm text-white/90">
+        </Typography>
+        <Typography sx={{ mt: 0.5, fontSize: 14, color: "rgba(255,255,255,0.9)" }}>
           {activeName} hat {correct ? "richtig" : "falsch"} eingeordnet
-        </p>
-      </div>
+        </Typography>
+      </Paper>
 
       <GameCard card={resolution.card} />
-      <p className="text-lg font-semibold">
+      <Typography sx={{ fontSize: 18, fontWeight: 600 }}>
         {resolution.card.title} — {resolution.card.artist} ({resolution.card.year})
-      </p>
+      </Typography>
 
       {resolution.counters.length > 0 && (
-        <div className="space-y-1">
+        <Stack spacing={0.5}>
           {resolution.counters.map((c) => (
-            <p
+            <Typography
               key={c.playerId}
-              className={c.correct ? "text-green-300" : "text-red-300"}
+              sx={{ color: c.correct ? "success.light" : "error.light" }}
             >
               Konter {players.find((p) => p.id === c.playerId)?.name} (Slot {c.slot}):{" "}
               {c.correct ? "richtig" : "falsch"}
-            </p>
+            </Typography>
           ))}
-        </div>
+        </Stack>
       )}
 
-      <p className="text-xl font-bold">
+      <Typography sx={{ fontSize: 20, fontWeight: 700 }}>
         {winner ? `🎉 ${winner.name} gewinnt die Karte!` : "Karte wird verworfen."}
-      </p>
+      </Typography>
 
-      <div className="mt-2 w-full max-w-sm space-y-2">
-        <p className="text-sm text-white/80">
+      <Stack spacing={1} sx={{ mt: 1, width: "100%", maxWidth: 360 }}>
+        <Typography sx={{ fontSize: 14, color: "rgba(255,255,255,0.8)" }}>
           Hat {activeName} Titel & Interpret laut richtig genannt? (+1 Token)
-        </p>
-        <div className="flex gap-2">
-          <button
-            type="button"
+        </Typography>
+        <Stack direction="row" spacing={1}>
+          <Button
             onClick={() => onContinue(true)}
-            className="flex-1 rounded-lg bg-green-600 py-2 font-semibold"
+            color="success"
+            sx={{ flex: 1 }}
           >
             Ja, +1 Token
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
             onClick={() => onContinue(false)}
-            className="flex-1 rounded-lg bg-neutral-700 py-2 font-semibold"
+            color="inherit"
+            sx={{ flex: 1 }}
           >
             Nein, weiter
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Stack>
+      </Stack>
+    </Box>
   );
 }
