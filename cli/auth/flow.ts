@@ -7,6 +7,7 @@ import type { StoredTokens } from "./store";
 
 const REDIRECT_URI = "http://127.0.0.1:8888/callback";
 const PORT = 8888;
+const ABANDON_TIMEOUT_MS = 300_000;
 const SCOPES = [
   "streaming",
   "user-read-email",
@@ -35,6 +36,10 @@ export function runAuthFlow(): Promise<StoredTokens> {
   const state = randomUUID();
 
   return new Promise<StoredTokens>((resolve, reject) => {
+    let timer: NodeJS.Timeout;
+    const settleResolve = (tokens: StoredTokens) => { clearTimeout(timer); resolve(tokens); };
+    const settleReject = (e: Error) => { clearTimeout(timer); reject(e); };
+
     const server = createServer(async (req, res) => {
       const url = new URL(req.url ?? "/", REDIRECT_URI);
       if (url.pathname !== "/callback") { res.writeHead(404).end(); return; }
@@ -44,21 +49,25 @@ export function runAuthFlow(): Promise<StoredTokens> {
       res.writeHead(200, { "Content-Type": "text/html" });
       res.end("<html><body>Kluuzter: Login abgeschlossen. Du kannst dieses Fenster schließen.</body></html>");
       server.close();
-      if (error || !code) { reject(new Error(`OAuth error: ${error ?? "no code"}`)); return; }
-      if (returnedState !== state) { reject(new Error("OAuth state mismatch")); return; }
+      if (error || !code) { settleReject(new Error(`OAuth error: ${error ?? "no code"}`)); return; }
+      if (returnedState !== state) { settleReject(new Error("OAuth state mismatch")); return; }
       try {
         const tokens = await requestTokens(
           exchangeCodeBody({ code, verifier, redirectUri: REDIRECT_URI, clientId }),
           null,
         );
-        resolve(tokens);
-      } catch (e) { reject(e as Error); }
+        settleResolve(tokens);
+      } catch (e) { settleReject(e as Error); }
     });
-    server.on("error", reject);
+    server.on("error", settleReject);
     server.listen(PORT, "127.0.0.1", () => {
       const authUrl = buildAuthUrl({ clientId, redirectUri: REDIRECT_URI, scopes: SCOPES, challenge, state });
       console.log("\nÖffne zum Login:\n" + authUrl + "\n");
       openBrowser(authUrl);
     });
+    timer = setTimeout(() => {
+      server.close();
+      settleReject(new Error("OAuth-Login Timeout: keine Antwort innerhalb von 5 Minuten."));
+    }, ABANDON_TIMEOUT_MS);
   });
 }
