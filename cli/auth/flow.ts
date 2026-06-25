@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import os from "node:os";
 import { generateCodeVerifier, codeChallenge, buildAuthUrl } from "./pkce";
 import { exchangeCodeBody, requestTokens } from "./oauth";
 import type { StoredTokens } from "./store";
@@ -18,13 +19,47 @@ const SCOPES = [
   "user-read-playback-state",
 ];
 
-function openBrowser(url: string): void {
-  // Best-effort; the URL is also printed so the user can open it manually.
-  const cmd = process.platform === "darwin" ? "open"
-    : process.platform === "win32" ? "cmd"
-    : "xdg-open";
-  const args = process.platform === "win32" ? ["/c", "start", "", url] : [url];
-  try { spawn(cmd, args, { stdio: "ignore", detached: true }).unref(); } catch { /* ignore */ }
+/** Returns an ordered list of [command, args] opener candidates for the current platform. */
+function openerCandidates(url: string): [string, string[]][] {
+  if (process.platform === "darwin") {
+    return [["open", [url]]];
+  }
+  if (process.platform === "win32") {
+    return [["cmd", ["/c", "start", "", url]]];
+  }
+  // Linux — detect WSL2 (env variable or kernel release string)
+  const isWSL =
+    Boolean(process.env.WSL_DISTRO_NAME) || /microsoft/i.test(os.release());
+  if (isWSL) {
+    // Escape single quotes in URL for PowerShell single-quoted string
+    const safePsUrl = url.replace(/'/g, "''");
+    return [
+      ["wslview", [url]],
+      ["powershell.exe", ["-NoProfile", "-Command", `Start-Process '${safePsUrl}'`]],
+      ["xdg-open", [url]],
+    ];
+  }
+  return [["xdg-open", [url]]];
+}
+
+/** Try each opener in sequence; if one is missing (ENOENT) advance to the next.
+ *  Never throws — the printed URL is the manual fallback and the auth server must stay alive. */
+function tryNext(
+  candidates: [string, string[]][],
+  idx: number,
+  spawnImpl: typeof spawn,
+): void {
+  if (idx >= candidates.length) return;
+  const [cmd, args] = candidates[idx];
+  const child = spawnImpl(cmd, args, { stdio: "ignore", detached: true });
+  child.on("error", () => tryNext(candidates, idx + 1, spawnImpl));
+  child.unref();
+}
+
+/** Best-effort browser opener.  Production callers use the default spawnImpl.
+ *  Tests inject a fake spawn to exercise the fallback chain without real binaries. */
+export function openBrowser(url: string, spawnImpl: typeof spawn = spawn): void {
+  tryNext(openerCandidates(url), 0, spawnImpl);
 }
 
 export function runAuthFlow(): Promise<StoredTokens> {
