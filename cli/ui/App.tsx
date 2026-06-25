@@ -1,5 +1,5 @@
-import React from "react";
-import { Box, Text } from "ink";
+import React, { useEffect } from "react";
+import { Box, Text, useApp } from "ink";
 import { useGameEngine } from "@/lib/engine/useGameEngine";
 import { activePlayer, availableSlots } from "@/lib/engine/selectors";
 import type { GameInput } from "@/lib/engine/types";
@@ -11,9 +11,21 @@ import SlotPicker from "./SlotPicker";
 import Reveal from "./Reveal";
 import GameOver from "./GameOver";
 
+/** How long the final standings stay on screen before the CLI exits itself. */
+const GAME_OVER_EXIT_DELAY_MS = 6000;
+
 export default function App(props: { input: GameInput; controller: AudioController }): React.ReactElement {
   const { context, phase, send } = useGameEngine(props.input);
   useAudioSync(props.controller, phase, context.currentCard);
+  const { exit } = useApp();
+
+  // When the game is over, show the standings briefly, then unmount Ink. Root's
+  // effect cleanup stops librespot on unmount and index.tsx exits the process.
+  useEffect(() => {
+    if (phase !== "gameOver") return;
+    const t = setTimeout(() => exit(), GAME_OVER_EXIT_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [phase, exit]);
 
   const active = activePlayer(context);
   const slots = availableSlots(context);

@@ -43,4 +43,8 @@ function Root(): React.ReactElement {
   return <App input={input} controller={boot.controller} />;
 }
 
-render(<Root />);
+const instance = render(<Root />);
+// When Ink unmounts (game over auto-exit, or Ctrl-C), Root's effect cleanup has
+// already stopped librespot; force the process to terminate so a lingering child
+// handle can't keep it alive.
+void instance.waitUntilExit().then(() => process.exit(0));

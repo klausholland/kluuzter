@@ -11,7 +11,7 @@ export default function GameOver(props: { context: GameContext }): React.ReactEl
       <Text bold color="green">Spiel vorbei!</Text>
       <Text>Sieger: {winner ? winner.name : "—"}</Text>
       {ranked.map((p) => <Text key={p.id}>  {p.name}: {p.timeline.length} Karten, {p.tokens} Tokens</Text>)}
-      <Text dimColor>Ctrl-C zum Beenden.</Text>
+      <Text dimColor>Spiel beendet — schließt automatisch… (Ctrl-C zum sofortigen Beenden)</Text>
     </Box>
   );
 }
