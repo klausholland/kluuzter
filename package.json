@@ -10,7 +10,7 @@
     "start": "next start",
     "test": "vitest run",
     "test:watch": "vitest",
-    "play": "tsx cli/index.tsx"
+    "play": "tsx --env-file-if-exists=.env cli/index.tsx"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

@@ -15,8 +15,11 @@ lokalen librespot-Player, der als Spotify-Connect-Gerät „Kluuzter" läuft.
   `librespot --help` verifizieren und den Abschnitt „CONFIRMED FLAGS" in NOTES.md
   ausfüllen. `cli/audio/librespot.ts` verwendet aktuell die vorgeschlagenen, noch nicht
   bestätigten Flags.
-- In den Spotify-App-Einstellungen muss die Redirect-URI `http://127.0.0.1:8888/callback` eingetragen sein
-- `.env` mit `AUTH_SPOTIFY_ID`, `AUTH_SPOTIFY_SECRET`, `DATABASE_URL` (wie für die Webapp)
+- In den Spotify-App-Einstellungen muss die Redirect-URI `http://127.0.0.1:8888/callback` auf
+  **derselben** App eingetragen sein, deren Client-ID in `AUTH_SPOTIFY_ID` steht
+- `.env` mit `AUTH_SPOTIFY_ID` und `DATABASE_URL` (wie für die Webapp) — `npm run play` lädt
+  `.env` automatisch (`--env-file-if-exists`), ein manuelles `export` ist nicht nötig.
+  Hinweis: Die CLI nutzt den PKCE-Public-Client-Flow und braucht **kein** `AUTH_SPOTIFY_SECRET`.
 
 ## Starten
 ```bash
