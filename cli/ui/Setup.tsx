@@ -35,6 +35,7 @@ export default function Setup(props: { token: string; onReady: (input: GameInput
         <Text>Spieler {players.length + 1} (leer lassen + Enter zum Starten):</Text>
         {players.map((p, i) => <Text key={p.id}>  {i + 1}. {p.name}</Text>)}
         <TextPrompt
+          key={players.length}
           label="Name:"
           onSubmit={(name) => {
             const trimmed = name.trim();
