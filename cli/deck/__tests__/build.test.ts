@@ -35,6 +35,7 @@ describe("buildDeckForPlaylist", () => {
 
     const deck = await buildDeckForPlaylist("tok", "pl");
     expect(getPlaylistTracks).toHaveBeenCalledWith("tok", "pl");
+    expect((enrichTracks as ReturnType<typeof vi.fn>).mock.calls[0][0]).toHaveLength(2); // deduped before enrichment
     expect(deck.map((c) => c.id).sort()).toEqual(["t1", "t2"]); // deduped
     expect(deck.find((c) => c.id === "t2")?.year).toBe(2001);
   });
