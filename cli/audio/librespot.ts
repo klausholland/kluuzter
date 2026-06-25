@@ -14,12 +14,20 @@ export type LibrespotHandle = { process: ChildProcess; stop: () => void };
  */
 export function startLibrespot(
   accessToken: string,
-  opts: { binary?: string; spawnImpl?: typeof nodeSpawn } = {},
+  opts: { binary?: string; spawnImpl?: typeof nodeSpawn; onError?: (err: Error) => void } = {},
 ): LibrespotHandle {
   const binary = opts.binary ?? process.env.KLUUZTER_LIBRESPOT ?? "librespot";
   const spawnImpl = opts.spawnImpl ?? nodeSpawn;
   const args = ["--name", DEVICE_NAME, "--access-token", accessToken, "--bitrate", "320"];
   const child = spawnImpl(binary, args, { stdio: ["ignore", "pipe", "pipe"] }) as ChildProcess;
+  // Without this listener, Node throws on an unhandled 'error' event (e.g. ENOENT
+  // when the binary is missing), crashing the whole CLI outside any try/catch.
+  // Attaching a listener — even a no-op — turns a missing binary into a graceful
+  // path: the device never appears and the existing waitForDevice timeout produces
+  // the friendly boot error instead of a raw stack trace.
+  child.on("error", (err) => {
+    opts.onError?.(err);
+  });
   const stop = () => {
     try {
       child.kill("SIGTERM");
