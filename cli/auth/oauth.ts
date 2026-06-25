@@ -1,8 +1,4 @@
-// TODO(task-4): `StoredTokens` is canonically defined in `store.ts`. It is
-// defined here temporarily to avoid importing a module that doesn't exist
-// yet. Once Task 4 creates `store.ts`, remove this and switch to:
-//   import type { StoredTokens } from "./store";
-export type StoredTokens = { access_token: string; refresh_token: string; expires_at: number };
+import type { StoredTokens } from "./store";
 
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
 
