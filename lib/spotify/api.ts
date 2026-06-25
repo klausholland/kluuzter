@@ -112,3 +112,18 @@ export async function getPlaylistTracks(
   }
   return out;
 }
+
+export type SpotifyDevice = {
+  id: string | null;
+  name: string;
+  isActive: boolean;
+};
+
+export async function getDevices(
+  token: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<SpotifyDevice[]> {
+  const data = await getJson(`${API}/me/player/devices`, token, fetchImpl);
+  const devices = (data.devices as Array<{ id: string | null; name: string; is_active?: boolean }>) ?? [];
+  return devices.map((d) => ({ id: d.id, name: d.name, isActive: d.is_active ?? false }));
+}
