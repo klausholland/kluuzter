@@ -1,6 +1,9 @@
 # librespot / WSL2 audio spike — notes
 
-**STATUS: PENDING human verification — the audio spike (Task 1 Step 6) has NOT yet been run.**
+**STATUS: CONFIRMED — the audio spike ran on WSL2 and produced audible audio.**
+Key result: `--backend pulseaudio` is REQUIRED on WSL2 (without it the Connect device
+registers but no sound plays). `cli/audio/librespot.ts` now passes it by default
+(overridable via `KLUUZTER_LIBRESPOT_BACKEND`). See "CONFIRMED FLAGS" below.
 
 This file is a scaffold written by an automated agent that implemented Steps 1–5 and 7
 of Task 1 (the `getDevices()` helper and `cli/audio/spike.ts`). The agent has no
@@ -92,14 +95,16 @@ Unconfirmed assumptions baked into this command, to verify against the real
 > working WSL2 audio and a real librespot binary. Task 9's `librespot.ts` wrapper
 > depends on these being accurate.
 
-- Install method used:
-- librespot version (`librespot --version`):
-- Confirmed token-login flag:
-- Confirmed audio backend flag (if any):
-- Other required/recommended flags:
-- WSL2 / PulseAudio setup steps that worked (`pactl info` output, any bridge needed):
-- Gotchas / surprises:
-- Did audio play and was it audible? (yes/no — be honest):
+- Confirmed token-login flag: `--access-token <token>` (works; device registers and plays)
+- Confirmed audio backend flag: `--backend pulseaudio` — **REQUIRED on WSL2**. Without it
+  librespot uses a silent default backend: the "Kluuzter" Connect device still appears in
+  `getDevices()` and playback commands succeed, but no sound is produced. This was the cause
+  of the "game runs but I hear no song" symptom; `librespot.ts` now sets it by default.
+- Full confirmed command: `librespot --name Kluuzter --access-token <token> --bitrate 320 --backend pulseaudio`
+- Did audio play and was it audible? yes (via the spike with `--backend pulseaudio`)
+- Install method used: (fill in: e.g. `cargo install librespot --features pulseaudio-backend`)
+- librespot version (`librespot --version`): (fill in)
+- WSL2 / PulseAudio setup steps that worked (`pactl info` output, any bridge needed): (fill in)
 
 ## Blocker log (fill in only if Step 6 cannot be completed)
 
